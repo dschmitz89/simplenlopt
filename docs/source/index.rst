@@ -12,8 +12,11 @@ Welcome to simplenlopt's documentation!
 
    Quickstart
    Constrained_Optimization
+   Global_Opt
    InDepth_Gradients
    Curve_Fitting
+   modules
+
    
 Indices and tables
 ==================
