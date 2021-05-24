@@ -150,6 +150,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
                     RuntimeWarning)
     return popt, pcov
 
+'''
 #@njit
 def func(x, a, b, c):
 
@@ -206,7 +207,7 @@ params, pcov = curve_fit(func, xdata, ydata, p0, method='slsqp', bounds = testbo
 print(time() - t0)
 print(params)
 print(pcov)
-'''
+
 #print("SciPy")
 from scipy.optimize import curve_fit as sc_curve_fit
 from scipy.optimize import least_squares
