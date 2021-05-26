@@ -11,7 +11,9 @@ A simple, SciPy like interface for the excellent nonlinear optimization library 
 
 ## Installation
 ```bash
-pip install simplenlopt
+git clone https://github.com/dschmitz89/simplenlopt
+cd simplenlopt
+pip install .
 ```
 
 ## Example: Minimizing the Rosenbrock function in simplenlopt and scipy
