@@ -225,7 +225,7 @@ def generate_nlopt_objective(fun, jac_required = None, jac = None, args=(), boun
                 return val        
 
         #function already in Nlopt style
-        elif jac == 'Nlopt':
+        elif jac == 'nlopt':
 
             def objective(x, grad):
 
@@ -249,7 +249,7 @@ def generate_nlopt_objective(fun, jac_required = None, jac = None, args=(), boun
 
         else:
             raise ValueError("Unknown method for Jacobian: jac='%s'. Should be one of "
-            " None, True, '2-point', '3-point', 'Nlopt' or a callable. " % jac )
+            " None, True, '2-point', '3-point', 'nlopt' or a callable. " % jac )
     
     #no gradient information required
     else:

@@ -17,25 +17,69 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
     '''
     Global optimization via MultiLevel Single Linkage (MLSL)
     
+    MLSL works by performing repeated local minimizations and heuristic rules to avoid
+    repeated searches of the same areas of the parameter space.
+
+    NOTE: MLSL does not seem to respect the relative and absolute convergence criteria.
+    By default, it will always run for the maximal number of iterations.
+
+    References:
+
+    A. H. G. Rinnooy Kan and G. T. Timmer, "Stochastic global optimization methods," 
+    Mathematical Programming, vol. 39, p. 27-78 (1987)
+
+    Sergei Kucherenko and Yury Sytsko, "Application of deterministic low-discrepancy sequences 
+    in global optimization," Computational Optimization and Applications, vol. 30, p. 297-318 (2005)
+
     Parameters
     --------
-    fun: callable function
-    bounds: tuple of array-like
-    args: list of function arguments
-    jac: {callable,  '2-point', '3-point', 'NLOpt', bool}, optional
-    x0: {ndarray, 'random'}
-    sobol_sampling: bool
-    population: int
-    local_minimizer: str
-    ftol_rel: float
-    xtol_rel: float
-    maxeval: {int, 'auto'}
-    maxtime: float
-    local_mimimizer_options: dict
+    fun : callable 
+        The objective function to be minimized. Must be in the form ``fun(x, *args)``, where ``x`` is the argument in the form of a 1-D array and args is a tuple of any additional fixed parameters needed to completely specify the function
+    bounds : tuple of array-like
+        Bounds for variables. ``(min, max)`` pairs for each element in ``x``, defining the finite lower and upper bounds for the optimizing argument of ``fun``. It is required to have ``len(bounds) == len(x)``. ``len(bounds)`` is used to determine the number of parameters in ``x``.
+    args : list, optional, default ()
+        Further arguments to describe the objective function
+    jac : {callable,  '2-point', '3-point', 'NLOpt', bool}, optional, default None
+        If callable, must be in the form ``jac(x, *args)``, where ``x`` is the argument 
+        in the form of a 1-D array and args is a tuple of any additional fixed parameters 
+        needed to completely specify the function
+        If '2-point' will use forward difference to approximate the gradient
+        If '3-point' will use central difference to approximate the gradient
+        If 'NLOpt', must be in the form ``jac(x, grad, *args)``, where ``x`` is the argument 
+        in the form of a 1-D array, ``grad`` a 1-D array containing the gradient 
+        and args is a tuple of any additional fixed parameters needed to completely specify the function
+    x0 : {ndarray, 'random'}, optional, default 'random'
+        Initial parameter vector guess.
+        If ndarray, must be a 1-D array
+        if 'random', picks a random initial guess in the feasible region.
+    sobol_sampling : bool, optional, default True
+        If True, starting points for local minimizations are sampled from a Sobol sequence.
+    population : int, optional, default 4
+        Number of local searches per iteration. 
+    local_minimizer : {str, 'auto'}, optional, default = 'auto'
+        Local minimizer used. If 'auto', either LBFGS if gradient is supplied or BOBYQA if
+        no gradient is supplied. If string, must be one of the local minimizers that can be fed 
+        to ``minimize``.
+    ftol_rel : float, optional, default 1e-8
+        Relative function tolerance to signal convergence 
+    xtol_rel : float, optional, default 1e-6
+        Relative parameter vector tolerance to signal convergence
+    ftol_abs : float, optional, default 1e-14
+        Absolute function tolerance to signal convergence
+    xtol_abs : 1e-8, optional, default 1e-8
+        Absolute parameter vector tolerance to signal convergence
+    maxeval : {int, 'auto'}, optional, default 'auto'
+        Number of maximal function evaluations.
+        If 'auto', set to 1.000 * dimensions for gradient based local optimizer,
+        and 10.000 * problem dimensional for gradient free local optimizer
+    maxtime : float, optional, default None
+        maximum absolute time until the optimization is terminated
+    local_mimimizer_options : dict
+        Further options supplied to the local minimizer
 
     Returns
     --------
-    OptimizeResult
+    opt_result: OptimizeResult
     '''
     #if local_minimizer not given, choose automatically
     #depending on gradient availability
@@ -124,28 +168,51 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
     return result
 
 def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False, 
-    ftol_rel=1e-8, xtol_rel=1e-4, ftol_abs = 1e-12, xtol_abs = 1e-6, 
+    ftol_rel = 1e-8, xtol_rel = 1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, 
     maxeval='auto', maxtime = None):
     '''
     Global optimization via STOchastic Global Optimization (STOGO)
     
+    References:
+
+    S. Zertchaninov and K. Madsen, "A C++ Programme for Global Optimization,"
+    IMM-REP-1998-04, Department of Mathematical Modelling,
+    Technical University of Denmark, DK-2800 Lyngby, Denmark, 1998
+
+    S. Gudmundsson, "Parallel Global Optimization," M.Sc. Thesis, IMM,
+    Technical University of Denmark, 1998
+
     Parameters
     --------
-    fun: callable function
-    bounds: tuple of array-like
-    args: list of function arguments
-    jac: {callable,  '2-point', '3-point', 'NLOpt', bool}, optional
-    x0: {ndarray, 'random'}, optional
-    randomize: bool, optional
+    fun : callable 
+        The objective function to be minimized. Must be in the form ``fun(x, *args)``, where ``x`` is the argument in the form of a 1-D array and args is a tuple of any additional fixed parameters needed to completely specify the function
+    bounds : tuple of array-like
+        Bounds for variables. ``(min, max)`` pairs for each element in ``x``, defining the finite lower and upper bounds for the optimizing argument of ``fun``. It is required to have ``len(bounds) == len(x)``. ``len(bounds)`` is used to determine the number of parameters in ``x``.
+    args : list, optional, default ()
+        Further arguments to describe the objective function
+    jac : {callable,  '2-point', '3-point', 'NLOpt', bool}, optional, default None
+        If callable, must be in the form ``jac(x, *args)``, where ``x`` is the argument 
+        in the form of a 1-D array and args is a tuple of any additional fixed parameters 
+        needed to completely specify the function
+        If '2-point' will use forward difference to approximate the gradient
+        If '3-point' will use central difference to approximate the gradient
+        If 'NLOpt', must be in the form ``jac(x, grad, *args)``, where ``x`` is the argument 
+        in the form of a 1-D array, ``grad`` a 1-D array containing the gradient 
+        and args is a tuple of any additional fixed parameters needed to completely specify the function
+    x0 : {ndarray, 'random'}, optional, default 'random'
+        Initial parameter vector guess.
+        If ndarray, must be a 1-D array
+        if 'random', picks a random initial guess in the feasible region.
+    randomize: bool, optional, default False
+        If True, randomizes the branching process
     ftol_rel: float, optional
     xtol_rel: float, optional
     maxeval: {int, 'auto'}, optional
     maxtime: float, optional
-    local_mimimizer_options: dict, optional
 
     Returns
     --------
-    OptimizeResult
+    opt_result: OptimizeResult
     '''
     if randomize:
         method='stogo_rand'
@@ -169,11 +236,20 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
     return res
 
 def isres(fun, bounds, args=(), constraints = [], x0='random', population=None, 
-    ftol_rel=1e-8, xtol_rel=1e-4, ftol_abs = 1e-14, xtol_abs = 1e-7, 
+    ftol_rel = 1e-8, xtol_rel = 1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, 
     maxeval='auto', maxtime = None, solver_options={}):
     
     '''
     Global optimization via the Improved Stochastic Ranking Evolution Strategy
+
+    References:
+
+    Thomas Philip Runarsson and Xin Yao, "Search biases in constrained evolutionary optimization,"
+    IEEE Trans. on Systems, Man, and Cybernetics Part C: Applications and Reviews,
+    vol. 35 (no. 2), pp. 233-243 (2005)
+
+    Thomas P. Runarsson and Xin Yao, "Stochastic ranking for constrained evolutionary optimization," 
+    IEEE Trans. Evolutionary Computation, vol. 4 (no. 3), pp. 284-294 (2000)
 
     Parameters
     --------
@@ -193,7 +269,7 @@ def isres(fun, bounds, args=(), constraints = [], x0='random', population=None,
 
     Returns
     --------
-    OptimizeResult
+    opt_result: OptimizeResult
     '''
     if x0 == 'random':
         lower, upper = zip(*normalize_bounds(bounds))
@@ -214,14 +290,16 @@ def isres(fun, bounds, args=(), constraints = [], x0='random', population=None,
     return res
 
 def esch(fun, bounds, args=(), x0='random', population=None, 
-    ftol_rel=1e-10, xtol_rel=1e-6, ftol_abs = 1e-14, xtol_abs = 1e-7, 
+    ftol_rel = 1e-8, xtol_rel = 1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, 
     maxeval='auto', maxtime = None, solver_options={}):
     '''
     Global optimization via Differential Evolution variant
 
-    Source: C. H. da Silva Santos, "Parallel and Bio-Inspired Computing Applied 
+    Reference:
+    C. H. da Silva Santos, "Parallel and Bio-Inspired Computing Applied 
     to Analyze Microwave and Photonic Metamaterial Strucutures," 
     Ph.D. thesis, University of Campinas, (2010)
+
     Parameters
     --------
     fun: callable function
@@ -240,7 +318,7 @@ def esch(fun, bounds, args=(), x0='random', population=None,
 
     Returns
     --------
-    OptimizeResult
+    opt_result: OptimizeResult
     '''
     if x0 == 'random':
         lower, upper = zip(*normalize_bounds(bounds))
@@ -261,9 +339,44 @@ def esch(fun, bounds, args=(), x0='random', population=None,
     return res
 
 def crs(fun, bounds, args=(), x0='random', population = None, 
-    ftol_rel=1e-10, xtol_rel=1e-6, ftol_abs = 1e-14, xtol_abs = 1e-7, 
+    ftol_rel = 1e-8, xtol_rel = 1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, 
     maxeval=None, maxtime = None, solver_options={}):
+    '''
+    Global optimization via Controlled Random Search with local mutation
 
+    References:
+    
+    P. Kaelo and M. M. Ali, "Some variants of the controlled random search algorithm
+    for global optimization," J. Optim. Theory Appl. 130 (2), 253-264 (2006)
+    
+    W. L. Price, "Global optimization by controlled random search," 
+    J. Optim. Theory Appl. 40 (3), p. 333-348 (1983)
+
+    W. L. Price, "A controlled random search procedure for global optimization," 
+    in Towards Global Optimization 2, p. 71-84 edited by L. C. W. Dixon and G. P. Szego 
+    (North-Holland Press, Amsterdam, 1978)
+
+    Parameters
+    --------
+    fun: callable function
+    bounds: tuple of array-like
+    args: list of function arguments
+    constraints: list, optional
+    x0: {ndarray, 'random'}, optional
+    population: int, optional
+    ftol_rel: float, optional
+    xtol_rel: float, optional
+    ftol_abs: float, optional
+    xtol_abs: float, optional
+    maxeval: {int, 'auto'}, optional
+    maxtime: float, optional
+    solver_options: dict, optional
+
+    Returns
+    --------
+    opt_result: OptimizeResult
+
+    '''
     if x0 == 'random':
         lower, upper = zip(*normalize_bounds(bounds))
         x0 = random_initial_point(lower, upper)
@@ -279,12 +392,18 @@ def crs(fun, bounds, args=(), x0='random', population = None,
     return res
 
 def direct(fun, bounds, args=(), constraints = (), locally_biased = True, scale = True, 
-    randomize = False, original = False, ftol_rel = 1e-8, xtol_rel = 1e-4, 
-    ftol_abs = 1e-14, xtol_abs = 1e-7, maxeval=None, maxtime=None, solver_options={}):
+    randomize = False, original = False, ftol_rel = 1e-8, xtol_rel = 1e-6, 
+    ftol_abs = 1e-14, xtol_abs = 1e-8, maxeval=None, maxtime=None, solver_options={}):
     '''
-    Global optimization via variants of the 
-    DIviding RECTangles (DIRECT) algorithm
+    Global optimization via variants of the DIviding RECTangles (DIRECT) algorithm
     Default variant: DIRECT_L
+
+    References:
+    D. R. Jones, C. D. Perttunen, and B. E. Stuckmann, "Lipschitzian optimization without 
+    the lipschitz constant," J. Optimization Theory and Applications, vol. 79, p. 157 (1993)
+
+    J. M. Gablonsky and C. T. Kelley, "A locally-biased form of the DIRECT algorithm," 
+    J. Global Optimization, vol. 21 (1), p. 27-37 (2001)
 
     Parameters
     --------
@@ -298,7 +417,7 @@ def direct(fun, bounds, args=(), constraints = (), locally_biased = True, scale 
 
     Returns
     --------
-    OptimizeResult
+    opt_result: OptimizeResult
     '''
     #pick the desired version of DIRECT
 
@@ -333,6 +452,6 @@ def direct(fun, bounds, args=(), constraints = (), locally_biased = True, scale 
     result = minimize(fun, upper, args=args, method=direct_algorithm, jac = None, bounds=bounds,
              constraints=[], ftol_rel = ftol_rel, xtol_rel = xtol_rel, 
              ftol_abs = ftol_abs, xtol_abs = xtol_abs, maxeval=maxeval, 
-            maxtime=maxtime, solver_options={})
+            maxtime=maxtime, solver_options=solver_options)
 
     return result

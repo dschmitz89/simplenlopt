@@ -1,4 +1,7 @@
 def local_optimizers_info():
+    '''
+    Prints a short summary of NLopt's local optimizers
+    '''
 
     LOCAL_OPTIMIZERS=['LBFGS'.ljust(23) + ': Gradient based. Supports: Bounds.',
     'SLSQP'.ljust(23) + ': Gradient based. Supports: Bounds, Inequality Constraints, Equality Constraints.',
@@ -25,7 +28,10 @@ def local_optimizers_info():
     print(*LOCAL_OPTIMIZERS, sep='\n')
 
 def global_optimizers_info():
-
+    '''
+    Prints a short summary of NLopt's global optimizers
+    '''
+    
     GLOBAL_OPTIMIZERS=['DIRECT'.ljust(6) + ': Gradient free.'.ljust(18),
     'CRS'.ljust(6) + ': Gradient free.'.ljust(18),
     "",
