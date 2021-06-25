@@ -65,6 +65,7 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 # ---LATEX options ----
+'''
 latex_engine = 'pdflatex'
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
@@ -83,7 +84,6 @@ latex_elements = {
 
     # Additional stuff for the LaTeX preamble.
     #
-    'preamble': r'''
-        \usepackage{amsmath, mathrm}
-        ''',
+    'preamble': r'\usepackage{amsmath}',
 }
+'''
