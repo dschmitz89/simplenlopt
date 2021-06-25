@@ -31,6 +31,7 @@ release = '1.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc',
     'nbsphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax'
@@ -56,7 +57,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -66,7 +67,23 @@ html_static_path = ['_static']
 # ---LATEX options ----
 latex_engine = 'pdflatex'
 latex_elements = {
+    # The paper size ('letterpaper' or 'a4paper').
+    #
+    'papersize': 'a4paper',
+    'releasename':" ",
+    # Sonny, Lenny, Glenn, Conny, Rejne, Bjarne and Bjornstrup
+    # 'fncychap': '\\usepackage[Lenny]{fncychap}',
+    'fncychap': '\\usepackage{fncychap}',
+    'fontpkg': '\\usepackage{amsmath,amsfonts,amssymb,amsthm}',
+
+    'figure_align':'htbp',
+    # The font size ('10pt', '11pt' or '12pt').
+    #
+    'pointsize': '10pt',
+
+    # Additional stuff for the LaTeX preamble.
+    #
     'preamble': r'''
-\usepackage{amsmath}
-''',
+        \usepackage{amsmath, mathrm}
+        ''',
 }
