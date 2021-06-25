@@ -6,3 +6,4 @@ flake8
 pytest
 nbsphinx
 plotly
+ipython
