@@ -4,6 +4,5 @@ six
 numpy
 flake8
 pytest
-pytest-covn
 nbsphinx
 plotly
