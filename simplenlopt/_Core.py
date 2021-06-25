@@ -391,10 +391,63 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
              ftol_abs = 1e-14, xtol_abs = 1e-8, maxeval=None, 
             maxtime=None, solver_options={}):
     """
+    Local minimization function for NLopt's algorithm in SciPy style
+
     Parameters
     ----------
-    fun : callable
-        Objective function
+    fun : callable 
+        The objective function to be minimized. Must be in the form ``fun(x, *args)``, where ``x`` is the argument in the form of a 1-D array and args is a tuple of any additional fixed parameters needed to completely specify the function
+    x0 : ndarray
+        Starting guess for the decision variable
+    args : tuple, optional, default ()
+        Further arguments to describe the objective function
+    method : string or 'auto', optional, default 'auto'
+        Optimization algorithm to use. If string, Should be one of 
+
+            - 'lbfgs'
+            - 'slsqp'
+            - 'mma'
+            - 'ccsaq'
+            - 'tnewton'
+            - 'tnewton_restart'
+            - 'tnewton_precond'
+            - 'tnewton_precond_restart'
+            - 'var1'
+            - 'var2'
+            - 'bobyqa'
+            - 'cobyla'
+            - 'neldermead'
+            - 'sbplx'
+            - 'praxis'
+            - 'newuoa_bound'
+            - 'newuoa'
+
+        If 'auto', will be set to 'bobyqa'/'cobyla' if jac=None ('cobyla' if constraints are set) 
+        or 'lbfgs'/'slsqp' if jac != None ('slsqp' if constraints set)
+
+        If the chosen method does not support the required constraints, the augmented lagrangian 
+        is called to handle them.
+    bounds : tuple of array-like
+        Bounds for variables. ``(min, max)`` pairs for each element in ``x``,
+        defining the finite lower and upper bounds for the optimizing argument of ``fun``. 
+        It is required to have ``len(bounds) == len(x)``.
+    constraints: list, optional, default ()
+        List of constraint functions. Constraints must be of the form ``f(x)`` for a constraint of the form f(x) <= 0.
+    ftol_rel : float, optional, default 1e-8
+        Relative function tolerance to signal convergence 
+    xtol_rel : float, optional, default 1e-6
+        Relative parameter vector tolerance to signal convergence
+    ftol_abs : float, optional, default 1e-14
+        Absolute function tolerance to signal convergence
+    xtol_abs : float, optional, default 1e-8
+        Absolute parameter vector tolerance to signal convergence
+    maxeval : {int, 'auto'}, optional, default 'auto'
+        Number of maximal function evaluations.
+        If 'auto', set to 1.000 * dimensions
+    maxtime : float, optional, default None
+        maximum absolute time until the optimization is terminated.
+    solver_options: dict, optional, default None
+        Dictionary of additional options supplied to the solver.
 
     Examples
     --------
@@ -411,14 +464,14 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
     >>> res.x
     array([ 1.,  1.,  1.,  1.,  1.])
 
-    >>> res = minimize(rosen, x0, method='ld_lbfgs', jac=rosen_der,
+    >>> res = minimize(rosen, x0, method='lbfgs', jac=rosen_der,
     ...                ftol_abs=1e-5)
     >>> res.success
     True
     >>> res.message
     'Optimization stopped because ftol_rel or ftol_abs (above) was reached.'
 
-    >>> res = minimize(rosen, x0, method='ld_lbfgs', jac=rosen_der, foo=3)
+    >>> res = minimize(rosen, x0, method='lbfgs', jac=rosen_der, foo=3)
     Traceback (most recent call last):
         ...
     ValueError: Parameter foo could not be recognized.
@@ -434,7 +487,7 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
     ...         {'type': 'ineq',
     ...           'fun': lambda x: x[1] - 1,
     ...           'jac': lambda x: np.array([0., 1.])}]
-    >>> res = minimize(fun, x0, jac=dfun, method='LD_SLSQP', constraints=cons)
+    >>> res = minimize(fun, x0, jac=dfun, method='slsqp', constraints=cons)
     >>> res.success
     False
     >>> res.message
@@ -448,7 +501,7 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
     ...         {'type': 'ineq',
     ...           'fun': lambda x: x[1] - 1,
     ...           'jac': lambda x: np.array([0., 1.])}]
-    >>> res = minimize(fun, x0, jac=dfun, method='LD_SLSQP', constraints=cons, ftol_abs=1e-20)
+    >>> res = minimize(fun, x0, jac=dfun, method='slsqp', constraints=cons, ftol_abs=1e-20)
     Traceback (most recent call last):
         ...
     ValueError: Constraint type not recognized
@@ -564,9 +617,85 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
     constraints = (), penalize_inequalities = True, ftol_rel = 1e-8, 
     xtol_rel = 1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, maxeval=None, 
     maxtime=None, solver_options={}):
+    """
+    Constrained local minimization via the augmented lagrangian method
+    
+    References:
+
+    Andrew R. Conn, Nicholas I. M. Gould, and Philippe L. Toint, 
+    "A globally convergent augmented Lagrangian algorithm for optimization 
+    with general constraints and simple bounds," SIAM J. Numer. Anal. vol. 28, no. 2, p. 545-572 (1991)
+
+    E. G. Birgin and J. M. Martínez, "Improving ultimate convergence of an augmented Lagrangian method," 
+    Optimization Methods and Software vol. 23, no. 2, p. 177-195 (2008)
+
+    Parameters
+    ----------
+    fun : callable 
+        The objective function to be minimized. Must be in the form ``fun(x, *args)``, where ``x`` is the argument in the form of a 1-D array and args is a tuple of any additional fixed parameters needed to completely specify the function
+    x0 : ndarray
+        Starting guess for the decision variable
+    args : tuple, optional, default ()
+        Further arguments to describe the objective function
+    method : string or 'auto', optional, default 'auto'
+        Optimization algorithm to use. If string, should be one of 
+
+            - 'lbfgs'
+            - 'slsqp'
+            - 'mma'
+            - 'ccsaq'
+            - 'tnewton'
+            - 'tnewton_restart'
+            - 'tnewton_precond'
+            - 'tnewton_precond_restart'
+            - 'var1'
+            - 'var2'
+            - 'bobyqa'
+            - 'cobyla'
+            - 'neldermead'
+            - 'sbplx'
+            - 'praxis'
+            - 'newuoa_bound'
+            - 'newuoa'
+
+        If 'auto', a suitable solver is chosen based on the availability
+        of gradient information and if also inequalities should be penalized:
+
+        jac != None and penalize_inequalities=True -> 'lbfgs'
+
+        jac = None and penalize_inequalities=True -> 'bobyqa'
+
+        jac != None and penalize_inequalities=False -> 'mma'
+
+        jac = None and penalize_inequalities=False -> 'cobyla'
+    bounds : tuple of array-like, optional, default None
+        Bounds for variables. ``(min, max)`` pairs for each element in ``x``,
+        defining the finite lower and upper bounds for the optimizing argument of ``fun``. 
+        It is required to have ``len(bounds) == len(x)``.
+    constraints: list, optional, default ()
+        List of constraint functions. Constraints must be of the form ``f(x)`` for a constraint of the form f(x) <= 0.
+    penalize_inequalities : bool, optional, default True
+        If True, also penalizes violation of inequality constraints (NLopt code: AUGLAG).
+        If False, only penalizes violation of equality constraints (NLopt code: AUGLAG_EQ). 
+        In this case the chosen method must be able to handle inequality constraints.
+    ftol_rel : float, optional, default 1e-8
+        Relative function tolerance to signal convergence 
+    xtol_rel : float, optional, default 1e-6
+        Relative parameter vector tolerance to signal convergence
+    ftol_abs : float, optional, default 1e-14
+        Absolute function tolerance to signal convergence
+    xtol_abs : float, optional, default 1e-8
+        Absolute parameter vector tolerance to signal convergence
+    maxeval : {int, 'auto'}, optional, default 'auto'
+        Number of maximal function evaluations.
+        If 'auto', set to 1.000 * dimensions
+    maxtime : float, optional, default None
+        maximum absolute time until the optimization is terminated.
+    solver_options: dict, optional, default None
+        Dictionary of additional options supplied to the solver.
+    """
 
     #choose version of augmented lagrangian
-
     #if not set by user, choose local minimizer automatically
     # depending on gradient availability
     if method == 'auto':

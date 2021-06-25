@@ -8,8 +8,56 @@ from numba import njit
 from warnings import warn
 
 def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None, 
-        loss = 'squared', method = 'auto', jac = None, **minimize_kwargs):
+        loss = 'linear', method = 'auto', jac = None, **minimize_kwargs):
+    '''
+    Curve fitting using NLopt's local optimizers in SciPy style
 
+    Parameters
+    --------
+    f : callable
+        Must be of the form ``f(xdata, *params)`` 
+    xdata : ndarray (n, )
+        Predictor variable values
+    ydata : ndarray (n, )
+        Response variable values
+    p0 : ndarray (n, ), optional
+        If None, defaults to 1 for all parameters
+    sigma : ndarray (n, ), optional
+        Typically uncertainties for each data point. The objective will be multiplied by 1/sigma
+    bounds : two-tuple of array-like, optional
+        Determines the bounds on the fitting parameters ([lower_bounds], [upper_bounds])
+    loss : string, optional, default 'linear'
+        Should be one of
+
+            - 'linear' (yields squared residuals)
+            - 'absolute' (minimizes absolute residuals)
+
+    method : string or 'auto', optional, default 'auto'
+        Optimization algorithm to use. If string, Should be one of 
+
+            - 'lbfgs'
+            - 'slsqp'
+            - 'mma'
+            - 'ccsaq'
+            - 'tnewton'
+            - 'tnewton_restart'
+            - 'tnewton_precond'
+            - 'tnewton_precond_restart'
+            - 'var1'
+            - 'var2'
+            - 'bobyqa'
+            - 'cobyla'
+            - 'neldermead'
+            - 'sbplx'
+            - 'praxis'
+            - 'newuoa_bound'
+            - 'newuoa'
+
+        If 'auto', defaults to 'slsqp' if jac != None and 'bobyqa' if jac = None
+    jac : callable, optional
+        Must be of the form ``jac(xdata)`` and return a N x m numpy array for
+        N data points and m fitting parameters
+    '''
     #convert xdata and ydata to float and make sure that no NaNs are present
     xdata = np.asarray_chkfinite(xdata, float)
     ydata = np.asarray_chkfinite(ydata, float)
@@ -39,7 +87,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
 
     if callable(jac) and is_gradient_based(method):
 
-        if loss == 'squared':
+        if loss == 'linear':
 
             def objective(p):
 
@@ -107,8 +155,9 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
         res = minimize(objective, p0, bounds = minimize_bounds, method = method)
 
     popt = res.x
+
     #Covariance matrix estimation borrowed from SciPy
-    #try:
+    
     if callable(jac):
         jac_min = jac(xdata, *popt)
     else:
@@ -120,7 +169,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
 
         jac_min = approx_derivative(wrapped_func, popt, method='3-point', 
             bounds = bounds, args=(xdata,))
-    #print("jac: ", jac_min)
+    
     _, s, VT = svd(jac_min, full_matrices=False)
     threshold = np.finfo(float).eps * max(jac_min.shape) * s[0]
     s = s[s > threshold]

@@ -2,7 +2,9 @@ from simplenlopt._Core import minimize, is_gradient_based, generate_nlopt_object
 import numpy as np
 
 def random_initial_point(lower, upper):
-
+    '''
+    Pick one random point from hyperrectangle with uniform probability
+    '''
     lower_bounds = np.asarray(lower)
     upper_bounds = np.asarray(upper)
 
@@ -169,10 +171,13 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
 
 def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False, 
     ftol_rel = 1e-8, xtol_rel = 1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, 
-    maxeval='auto', maxtime = None):
+    maxeval='auto', maxtime = None, solver_options={}):
     '''
     Global optimization via STOchastic Global Optimization (STOGO)
-    
+
+    NOTE: STOGO does not seem to respect the relative and absolute convergence criteria.
+    By default, it will always run for the maximal number of iterations.
+
     References:
 
     S. Zertchaninov and K. Madsen, "A C++ Programme for Global Optimization,"
@@ -194,22 +199,37 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
         If callable, must be in the form ``jac(x, *args)``, where ``x`` is the argument 
         in the form of a 1-D array and args is a tuple of any additional fixed parameters 
         needed to completely specify the function
+
         If '2-point' will use forward difference to approximate the gradient
+
         If '3-point' will use central difference to approximate the gradient
+
         If 'NLOpt', must be in the form ``jac(x, grad, *args)``, where ``x`` is the argument 
         in the form of a 1-D array, ``grad`` a 1-D array containing the gradient 
         and args is a tuple of any additional fixed parameters needed to completely specify the function
     x0 : {ndarray, 'random'}, optional, default 'random'
         Initial parameter vector guess.
+
         If ndarray, must be a 1-D array
-        if 'random', picks a random initial guess in the feasible region.
+
+        If 'random', picks a random initial guess in the feasible region.
     randomize: bool, optional, default False
         If True, randomizes the branching process
-    ftol_rel: float, optional
-    xtol_rel: float, optional
-    maxeval: {int, 'auto'}, optional
-    maxtime: float, optional
-
+    ftol_rel : float, optional, default 1e-8
+        Relative function tolerance to signal convergence 
+    xtol_rel : float, optional, default 1e-6
+        Relative parameter vector tolerance to signal convergence
+    ftol_abs : float, optional, default 1e-14
+        Absolute function tolerance to signal convergence
+    xtol_abs : float, optional, default 1e-8
+        Absolute parameter vector tolerance to signal convergence
+    maxeval : {int, 'auto'}, optional, default 'auto'
+        Number of maximal function evaluations.
+        If 'auto', set to 1.000 * dimensions
+    maxtime : float, optional, default None
+        maximum absolute time until the optimization is terminated.
+    solver_options: dict, optional, default None
+        Dictionary of additional options supplied to the solver.
     Returns
     --------
     opt_result: OptimizeResult
@@ -231,16 +251,18 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
     res = minimize(fun, x0, method=method, jac = jac, bounds=bounds,
              ftol_rel = ftol_rel, xtol_rel = xtol_rel, 
              ftol_abs = ftol_abs, xtol_abs = xtol_abs, maxeval=maxeval, 
-            maxtime=maxtime)
+            maxtime=maxtime, solver_options=solver_options)
 
     return res
 
 def isres(fun, bounds, args=(), constraints = [], x0='random', population=None, 
     ftol_rel = 1e-8, xtol_rel = 1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, 
-    maxeval='auto', maxtime = None, solver_options={}):
-    
+    maxeval='auto', maxtime = None, solver_options={}):    
     '''
     Global optimization via the Improved Stochastic Ranking Evolution Strategy
+
+    NOTE: IRES does not seem to respect the relative and absolute convergence criteria.
+    By default, it will always run for the maximal number of iterations.
 
     References:
 
@@ -253,19 +275,36 @@ def isres(fun, bounds, args=(), constraints = [], x0='random', population=None,
 
     Parameters
     --------
-    fun: callable function
-    bounds: tuple of array-like
-    args: list of function arguments
-    constraints: list, optional
-    x0: {ndarray, 'random'}, optional
-    population: int, optional
-    ftol_rel: float, optional
-    xtol_rel: float, optional
-    ftol_abs: float, optional
-    xtol_abs: float, optional
-    maxeval: {int, 'auto'}, optional
-    maxtime: float, optional
-    solver_options: dict, optional
+    fun : callable 
+        The objective function to be minimized. Must be in the form ``fun(x, *args)``, where ``x`` is the argument in the form of a 1-D array and args is a tuple of any additional fixed parameters needed to completely specify the function
+    bounds : tuple of array-like
+        Bounds for variables. ``(min, max)`` pairs for each element in ``x``, defining the finite lower and upper bounds for the optimizing argument of ``fun``. It is required to have ``len(bounds) == len(x)``. ``len(bounds)`` is used to determine the number of parameters in ``x``.
+    args : list, optional, default ()
+        Further arguments to describe the objective function
+    constraints: list, optional, default ()
+        List of constraint functions. Constraints must be of the form ``f(x)`` for a constraint of the form f(x) <= 0.
+    x0 : {ndarray, 'random'}, optional, default 'random'
+        Initial parameter vector guess.
+        If ndarray, must be a 1-D array
+        if 'random', picks a random initial guess in the feasible region.
+    population : int, optional, default None
+        Population size.
+        If None, will use NLopt's default population size.
+    ftol_rel : float, optional, default 1e-8
+        Relative function tolerance to signal convergence 
+    xtol_rel : float, optional, default 1e-6
+        Relative parameter vector tolerance to signal convergence
+    ftol_abs : float, optional, default 1e-14
+        Absolute function tolerance to signal convergence
+    xtol_abs : float, optional, default 1e-8
+        Absolute parameter vector tolerance to signal convergence
+    maxeval : {int, 'auto'}, optional, default 'auto'
+        Number of maximal function evaluations.
+        If 'auto', set to 1.000 * dimensions
+    maxtime : float, optional, default None
+        maximum absolute time until the optimization is terminated.
+    solver_options: dict, optional, default None
+        Dictionary of additional options supplied to the solver.
 
     Returns
     --------
@@ -295,6 +334,9 @@ def esch(fun, bounds, args=(), x0='random', population=None,
     '''
     Global optimization via Differential Evolution variant
 
+    NOTE: ESCH does not seem to respect the relative and absolute convergence criteria.
+    By default, it will always run for the maximal number of iterations.
+
     Reference:
     C. H. da Silva Santos, "Parallel and Bio-Inspired Computing Applied 
     to Analyze Microwave and Photonic Metamaterial Strucutures," 
@@ -302,19 +344,34 @@ def esch(fun, bounds, args=(), x0='random', population=None,
 
     Parameters
     --------
-    fun: callable function
-    bounds: tuple of array-like
-    args: list of function arguments
-    constraints: list, optional
-    x0: {ndarray, 'random'}, optional
-    population: int, optional
-    ftol_rel: float, optional
-    xtol_rel: float, optional
-    ftol_abs: float, optional
-    xtol_abs: float, optional
-    maxeval: {int, 'auto'}, optional
-    maxtime: float, optional
-    solver_options: dict, optional
+    fun : callable 
+        The objective function to be minimized. Must be in the form ``fun(x, *args)``, where ``x`` is the argument in the form of a 1-D array and args is a tuple of any additional fixed parameters needed to completely specify the function
+    bounds : tuple of array-like
+        Bounds for variables. ``(min, max)`` pairs for each element in ``x``, defining the finite lower and upper bounds for the optimizing argument of ``fun``. It is required to have ``len(bounds) == len(x)``. ``len(bounds)`` is used to determine the number of parameters in ``x``.
+    args : list, optional, default ()
+        Further arguments to describe the objective function
+    x0 : {ndarray, 'random'}, optional, default 'random'
+        Initial parameter vector guess.
+        If ndarray, must be a 1-D array
+        if 'random', picks a random initial guess in the feasible region.
+    population : int, optional, default None
+        Population size.
+        If None, will use NLopt's default population size.
+    ftol_rel : float, optional, default 1e-8
+        Relative function tolerance to signal convergence 
+    xtol_rel : float, optional, default 1e-6
+        Relative parameter vector tolerance to signal convergence
+    ftol_abs : float, optional, default 1e-14
+        Absolute function tolerance to signal convergence
+    xtol_abs : float, optional, default 1e-8
+        Absolute parameter vector tolerance to signal convergence
+    maxeval : {int, 'auto'}, optional, default 'auto'
+        Number of maximal function evaluations.
+        If 'auto', set to 1.000 * dimensions
+    maxtime : float, optional, default None
+        maximum absolute time until the optimization is terminated.
+    solver_options: dict, optional, default None
+        Dictionary of additional options supplied to the solver.
 
     Returns
     --------
@@ -358,19 +415,34 @@ def crs(fun, bounds, args=(), x0='random', population = None,
 
     Parameters
     --------
-    fun: callable function
-    bounds: tuple of array-like
-    args: list of function arguments
-    constraints: list, optional
-    x0: {ndarray, 'random'}, optional
-    population: int, optional
-    ftol_rel: float, optional
-    xtol_rel: float, optional
-    ftol_abs: float, optional
-    xtol_abs: float, optional
-    maxeval: {int, 'auto'}, optional
-    maxtime: float, optional
-    solver_options: dict, optional
+    fun : callable 
+        The objective function to be minimized. Must be in the form ``fun(x, *args)``, where ``x`` is the argument in the form of a 1-D array and args is a tuple of any additional fixed parameters needed to completely specify the function
+    bounds : tuple of array-like
+        Bounds for variables. ``(min, max)`` pairs for each element in ``x``, defining the finite lower and upper bounds for the optimizing argument of ``fun``. It is required to have ``len(bounds) == len(x)``. ``len(bounds)`` is used to determine the number of parameters in ``x``.
+    args : list, optional, default ()
+        Further arguments to describe the objective function
+    x0 : {ndarray, 'random'}, optional, default 'random'
+        Initial parameter vector guess.
+        If ndarray, must be a 1-D array
+        if 'random', picks a random initial guess in the feasible region.
+    population : int, optional, default None
+        Population size.
+        If None, will use NLopt's default population size.
+    ftol_rel : float, optional, default 1e-8
+        Relative function tolerance to signal convergence 
+    xtol_rel : float, optional, default 1e-6
+        Relative parameter vector tolerance to signal convergence
+    ftol_abs : float, optional, default 1e-14
+        Absolute function tolerance to signal convergence
+    xtol_abs : float, optional, default 1e-8
+        Absolute parameter vector tolerance to signal convergence
+    maxeval : {int, 'auto'}, optional, default 'auto'
+        Number of maximal function evaluations.
+        If 'auto', set to 1.000 * dimensions
+    maxtime : float, optional, default None
+        maximum absolute time until the optimization is terminated.
+    solver_options: dict, optional, default None
+        Dictionary of additional options supplied to the solver.
 
     Returns
     --------
@@ -391,11 +463,12 @@ def crs(fun, bounds, args=(), x0='random', population = None,
 
     return res
 
-def direct(fun, bounds, args=(), constraints = (), locally_biased = True, scale = True, 
+def direct(fun, bounds, args=(), locally_biased = True, scale = True, 
     randomize = False, original = False, ftol_rel = 1e-8, xtol_rel = 1e-6, 
     ftol_abs = 1e-14, xtol_abs = 1e-8, maxeval=None, maxtime=None, solver_options={}):
     '''
     Global optimization via variants of the DIviding RECTangles (DIRECT) algorithm
+    
     Default variant: DIRECT_L
 
     References:
@@ -407,13 +480,35 @@ def direct(fun, bounds, args=(), constraints = (), locally_biased = True, scale 
 
     Parameters
     --------
-    fun: callable function
-    bounds: tuple of array-like
-    args: list of function arguments
-    locally_biased: bool
-    scale: bool
-    randomize: bool
-    original: bool
+    fun : callable 
+        The objective function to be minimized. Must be in the form ``fun(x, *args)``, where ``x`` is the argument in the form of a 1-D array and args is a tuple of any additional fixed parameters needed to completely specify the function
+    bounds : tuple of array-like
+        Bounds for variables. ``(min, max)`` pairs for each element in ``x``, defining the finite lower and upper bounds for the optimizing argument of ``fun``. It is required to have ``len(bounds) == len(x)``. ``len(bounds)`` is used to determine the number of parameters in ``x``.
+    args : list, optional, default ()
+        Further arguments to describe the objective function
+    locally_biased : boolean, optional, default True
+        If True, uses the locally biased variant of DIRECT known as DIRECT_L
+    scale : boolean, optional, default True
+        If True, scales the parameter space to a hypercube of length 1 in all dimensions
+    randomize : boolean, optional, default False
+        If True, randomize the algorithm by partly randomizing which side of the hyperrectangle is halved
+    original : boolean, optional, default False
+        If True, applies the original implementation of DIRECT by Jablonsky
+    ftol_rel : float, optional, default 1e-8
+        Relative function tolerance to signal convergence 
+    xtol_rel : float, optional, default 1e-6
+        Relative parameter vector tolerance to signal convergence
+    ftol_abs : float, optional, default 1e-14
+        Absolute function tolerance to signal convergence
+    xtol_abs : float, optional, default 1e-8
+        Absolute parameter vector tolerance to signal convergence
+    maxeval : {int, 'auto'}, optional, default 'auto'
+        Number of maximal function evaluations.
+        If 'auto', set to 1.000 * dimensions
+    maxtime : float, optional, default None
+        maximum absolute time until the optimization is terminated.
+    solver_options: dict, optional, default None
+        Dictionary of additional options supplied to the solver.
 
     Returns
     --------
