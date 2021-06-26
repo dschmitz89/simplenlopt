@@ -4,7 +4,7 @@ simplenlopt package
 Module contents
 ---------------
 
-.. automodule:: simplenlopt
+.. automodule:: simplenlopt.simplenlopt
    :members:
    :undoc-members:
    :show-inheritance:
