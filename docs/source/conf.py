@@ -36,7 +36,6 @@ extensions = [
     'nbsphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
-    'jupyter_sphinx.embed_widgets'
 ]
 
 # The suffix of source filenames.
