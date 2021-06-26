@@ -15,7 +15,7 @@ Welcome to simplenlopt's documentation!
    Global_Opt
    InDepth_Gradients
    Curve_Fitting
-   modules
+   simplenlopt
 
    
 Indices and tables
