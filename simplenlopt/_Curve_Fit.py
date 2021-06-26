@@ -4,7 +4,7 @@ from inspect import signature
 from scipy.linalg import svd
 from scipy.optimize._numdiff import approx_derivative
 from time import time
-from numba import njit
+#from numba import njit
 from warnings import warn
 
 def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None, 
