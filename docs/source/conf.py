@@ -12,7 +12,6 @@
 #
 import os
 import sys
-import subprocess
 sys.path.insert(0, os.path.abspath('../..'))
 
 
@@ -58,7 +57,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -88,13 +87,3 @@ latex_elements = {
     'preamble': r'\\usepackage{amsmath}',
 }
 '''
-
-if os.environ.get("READTHEDOCS"):
-
-    # Workaround for plotly. https://github.com/neuronsimulator/nrn/blob/b1c08499dbc305ab308bee50ba6e6045f40c0ef2/docs/conf.py
-    # RTD calls `conda install sphinx_rtd_theme` after `conda create` and SUPERSEDES installed one
-    # Here we get it back from conda-forge.
-    subprocess.run(
-        'conda install --yes --quiet --name latest --no-channel-priority -c conda-forge sphinx_rtd_theme',
-        shell=True,
-        check=True)
