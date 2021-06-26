@@ -88,12 +88,6 @@ latex_elements = {
     'preamble': r'\\usepackage{amsmath}',
 }
 '''
-
-nbsphinx_prolog = r"""
-.. raw:: html
-
-    <script src='http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js'></script>
-    <script>require=requirejs;</script>
-
-
-"""
+#----------------Plotly fix
+def setup(app):
+    app.add_javascript('https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js')
