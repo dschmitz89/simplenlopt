@@ -7,3 +7,4 @@ pytest
 nbsphinx
 plotly
 ipython
+sphinx_rtd_theme>0.4.3
