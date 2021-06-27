@@ -1,11 +1,12 @@
 from ._helpers import local_optimizers_info, global_optimizers_info
-from ._Core import minimize, auglag
+from ._Core import minimize, auglag, OptimizeResult
 from ._Global_Optimization import direct, mlsl, crs, isres, esch, stogo
 from ._Curve_Fit import curve_fit
 
 __all__ = ["local_optimizers_info",
      "global_optimizers_info",
      "minimize",
+     "OptimizeResult",
      "auglag",
      "direct",
      "mlsl",

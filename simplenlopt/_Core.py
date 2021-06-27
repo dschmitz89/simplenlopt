@@ -1,6 +1,5 @@
 import nlopt
 import numpy as np
-from scipy.optimize import OptimizeResult
 from scipy.optimize._numdiff import approx_derivative
 from warnings import warn
 
@@ -57,6 +56,39 @@ NLOPT_MESSAGES = {
                        "function or constraints."
 }
 
+# Class for returning the result of an optimization algorithm (copied from
+# scipy.optimize)
+class OptimizeResult(dict):
+    r""" Represents the optimization result.
+    Attributes
+    ----------
+    x : ndarray
+        The solution of the optimization.
+    success : bool
+        Whether or not the optimizer exited successfully.
+    message : str
+        Description of the cause of the termination.
+    fun : float
+        Value of the objective function.
+    nfev : int
+        Number of evaluations of the objective functions.
+    """
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name)
+
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
+    def __repr__(self):
+        if self.keys():
+            m = max(map(len, list(self.keys()))) + 1
+            return '\n'.join([k.rjust(m) + ': ' + repr(v)
+                              for k, v in self.items()])
+        else:
+            return self.__class__.__name__ + "()"
 
 def get_nlopt_enum(method_name=None, default=nlopt.LN_BOBYQA):
     """
