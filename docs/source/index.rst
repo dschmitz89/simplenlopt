@@ -6,6 +6,42 @@
 Welcome to simplenlopt's documentation!
 =======================================
 
+Features
+--------
+- SciPy like minimize(method='NLopt algorithm') API for NLopt's local optimizers
+- Automatic numerical approximation of the gradient if analytical gradient is not available
+- Automatic handling of constraints via the augmented lagrangian method without boilerplate code
+- Scipy like interfaces to NLopt's global optimizers with hard stopping criteria
+- SciPy like curve fitting using NLopt's algorithms
+
+Installation
+--------
+
+.. code::
+
+   git clone https://github.com/dschmitz89/simplenlopt
+   cd simplenlopt
+   pip install .
+
+Example: Minimizing the Rosenbrock function in simplenlopt and scipy
+-----
+
+.. code::
+   import simplenlopt
+   from scipy.optimize import rosen, rosen_der
+   import scipy
+   import numpy as np
+
+   x0 = np.array([0.5, 1.8])
+
+   res = simplenlopt.minimize(rosen, x0, jac = rosen_der)
+   print("Found optimum: ", res.x)
+
+   res_scipy = scipy.optimize.minimize(rosen, x0, jac = rosen_der)
+   print("Found optimum: ", res_scipy.x)
+
+Documentation
+-----
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
