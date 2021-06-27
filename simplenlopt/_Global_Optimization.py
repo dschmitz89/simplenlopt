@@ -511,9 +511,15 @@ def direct(fun, bounds, args=(), locally_biased = True, scale = True,
         Dictionary of additional options supplied to the solver.
 
     Returns
-    --------
-    opt_result: OptimizeResult
+    -------
+    result : :py:class:`~OptimizeResult`
+        The optimization result represented as a :py:class:`~OptimizeResult` object.
+        Important attributes are: ``x`` the solution array, ``fun`` the value
+        of the function at the solution, and ``message`` which describes the
+        cause of the termination.
+        See :py:class:`~OptimizeResult` for a description of other attributes.
     '''
+
     #pick the desired version of DIRECT
 
     if scale == True:

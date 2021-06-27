@@ -484,12 +484,12 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
 
     Returns
     -------
-    res : OptimizeResult
+    result : OptimizeResult
         The optimization result represented as a :py:class:`~OptimizeResult` object.
         Important attributes are: ``x`` the solution array, ``fun`` the value
         of the function at the solution, and ``message`` which describes the
         cause of the termination.
-        See `OptimizeResult` for a description of other attributes.
+        See :py:class:`~OptimizeResult` for a description of other attributes.
     """
 
     #if no method set, choose automatically
@@ -678,6 +678,15 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
         maximum absolute time until the optimization is terminated.
     solver_options: dict, optional, default None
         Dictionary of additional options supplied to the solver.
+
+    Returns
+    -------
+    result : OptimizeResult
+        The optimization result represented as a :py:class:`~OptimizeResult` object.
+        Important attributes are: ``x`` the solution array, ``fun`` the value
+        of the function at the solution, and ``message`` which describes the
+        cause of the termination.
+        See :py:class:`~OptimizeResult` for a description of other attributes.
     """
 
     #choose version of augmented lagrangian
