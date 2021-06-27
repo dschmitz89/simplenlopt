@@ -474,9 +474,8 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
         Absolute function tolerance to signal convergence
     xtol_abs : float, optional, default 1e-8
         Absolute parameter vector tolerance to signal convergence
-    maxeval : {int, 'auto'}, optional, default 'auto'
+    maxeval : int, optional, default None
         Number of maximal function evaluations.
-        If 'auto', set to 1.000 * dimensions
     maxtime : float, optional, default None
         maximum absolute time until the optimization is terminated.
     solver_options: dict, optional, default None
@@ -490,6 +489,52 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
         of the function at the solution, and ``message`` which describes the
         cause of the termination.
         See :py:class:`~OptimizeResult` for a description of other attributes.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.optimize import rosen, rosen_der
+    >>> x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
+    >>> res = minimize(rosen, x0, method='lbfgs', jac=rosen_der)
+    >>> res.success
+    True
+    >>> res.message
+    'Success'
+    >>> np.isclose(res.fun, 0)
+    True
+    >>> res.x
+    array([ 1.,  1.,  1.,  1.,  1.])
+
+    >>> res = minimize(rosen, x0, method='lbfgs', jac=rosen_der,
+    ...                ftol_abs=1e-5)
+    >>> res.success
+    True
+    >>> res.message
+    'Optimization stopped because ftol_rel or ftol_abs (above) was reached.'
+
+    >>> res = minimize(rosen, x0, method='ld_lbfgs', jac=rosen_der, foo=3)
+    Traceback (most recent call last):
+        ...
+    ValueError: Parameter foo could not be recognized.
+
+    .. todo:: Some sensible way of testing this.
+
+    >>> x0 = np.array([-1., 1.])
+    >>> fun = lambda x: - 2*x[0]*x[1] - 2*x[0] + x[0]**2 + 2*x[1]**2
+    >>> dfun = lambda x: np.array([2*x[0] - 2*x[1] - 2, - 2*x[0] + 4*x[1]])
+    >>> cons = [{'type': 'eq',
+    ...           'fun': lambda x: x[0]**3 - x[1],
+    ...           'jac': lambda x: np.array([3.*(x[0]**2.), -1.])},
+    ...         {'type': 'ineq',
+    ...           'fun': lambda x: x[1] - 1,
+    ...           'jac': lambda x: np.array([0., 1.])}]
+    >>> res = minimize(fun, x0, jac=dfun, method='slsqp', constraints=cons)
+    >>> res.success
+    False
+    >>> res.message
+    'Halted because roundoff errors limited progress. (In this case, the optimization still typically returns a useful result.)'
+    >>> res.x.round(2)
+    array([ 0.84,  0.6 ])
     """
 
     #if no method set, choose automatically
@@ -671,9 +716,8 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
         Absolute function tolerance to signal convergence
     xtol_abs : float, optional, default 1e-8
         Absolute parameter vector tolerance to signal convergence
-    maxeval : {int, 'auto'}, optional, default 'auto'
+    maxeval : int, optional, default None
         Number of maximal function evaluations.
-        If 'auto', set to 1.000 * dimensions
     maxtime : float, optional, default None
         maximum absolute time until the optimization is terminated.
     solver_options: dict, optional, default None
