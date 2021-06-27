@@ -57,6 +57,22 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
     jac : callable, optional
         Must be of the form ``jac(xdata)`` and return a N x m numpy array for
         N data points and m fitting parameters
+
+    Returns
+    -------
+    popt : ndarray (m, )
+        Array of best fit parameters.
+    pcov : ndarray (m, m)
+        Approximated covariance matrix of the fit parameters. 
+        To compute one standard deviation errors on the parameters use
+        ``perr = np.sqrt(np.diag(pcov))``. In general, these are not very accurate
+        estimates of the parameter uncertainty as the method relies on approximations.
+
+    Raises
+    ------
+    ValueError
+        if either `ydata` or `xdata` contain NaNs, or if incompatible options
+        are used.
     '''
     #convert xdata and ydata to float and make sure that no NaNs are present
     xdata = np.asarray_chkfinite(xdata, float)
