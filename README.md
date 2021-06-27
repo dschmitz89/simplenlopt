@@ -1,4 +1,5 @@
-# SimpleNLopt
+# simplenlopt
+At the moment in beta version! 
 
 ## Overview
 A simple, SciPy like interface for the excellent nonlinear optimization library [NLopt](https://github.com/stevengj/nlopt) to make switching between SciPy and NLopt a piece of cake. SimpleNLopt's functions can act as a drop-in replacement for SciPy functions. Major differences compared to plain NLopt:
@@ -10,7 +11,7 @@ A simple, SciPy like interface for the excellent nonlinear optimization library 
 * SciPy like curve fitting using NLopt's algorithms
 
 ## Documentation
-https://simplenlopt.readthedocs.io/en/latest/index.html
+Refer to the online [documentation](https://simplenlopt.readthedocs.io/en/latest/index.html) for detailed description of the API and examples 
 
 ## Installation
 ```bash
