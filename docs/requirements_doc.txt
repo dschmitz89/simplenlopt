@@ -1,0 +1,10 @@
+nlopt>2.6
+scipy>1.2
+six
+numpy
+nbsphinx
+plotly
+ipython
+sphinx_rtd_theme>0.4.3
+jupyter_sphinx
+ipywidgets
