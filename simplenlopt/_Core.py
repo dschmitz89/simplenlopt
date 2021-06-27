@@ -484,7 +484,7 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
 
     Returns
     -------
-    result : OptimizeResult
+    result : :py:class:`~OptimizeResult`
         The optimization result represented as a :py:class:`~OptimizeResult` object.
         Important attributes are: ``x`` the solution array, ``fun`` the value
         of the function at the solution, and ``message`` which describes the
@@ -681,7 +681,7 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
 
     Returns
     -------
-    result : OptimizeResult
+    result : :py:class:`~OptimizeResult`
         The optimization result represented as a :py:class:`~OptimizeResult` object.
         Important attributes are: ``x`` the solution array, ``fun`` the value
         of the function at the solution, and ``message`` which describes the

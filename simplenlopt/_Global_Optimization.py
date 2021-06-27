@@ -22,8 +22,9 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
     MLSL works by performing repeated local minimizations and heuristic rules to avoid
     repeated searches of the same areas of the parameter space.
 
-    NOTE: MLSL does not seem to respect the relative and absolute convergence criteria.
-    By default, it will always run for the maximal number of iterations.
+    .. note::
+        MLSL does not seem to respect the relative and absolute convergence criteria.
+        By default, it will always run for the maximal number of iterations.
 
     References:
 
@@ -80,8 +81,13 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
         Further options supplied to the local minimizer
 
     Returns
-    --------
-    opt_result: OptimizeResult
+    -------
+    result : :py:class:`~OptimizeResult`
+        The optimization result represented as a :py:class:`~OptimizeResult` object.
+        Important attributes are: ``x`` the solution array, ``fun`` the value
+        of the function at the solution, and ``message`` which describes the
+        cause of the termination.
+        See :py:class:`~OptimizeResult` for a description of other attributes.
     '''
     #if local_minimizer not given, choose automatically
     #depending on gradient availability
@@ -175,8 +181,9 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
     '''
     Global optimization via STOchastic Global Optimization (STOGO)
 
-    NOTE: STOGO does not seem to respect the relative and absolute convergence criteria.
-    By default, it will always run for the maximal number of iterations.
+    .. note::
+        STOGO does not seem to respect the relative and absolute convergence criteria.
+        By default, it will always run for the maximal number of iterations.
 
     References:
 
@@ -230,9 +237,15 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
         maximum absolute time until the optimization is terminated.
     solver_options: dict, optional, default None
         Dictionary of additional options supplied to the solver.
+
     Returns
-    --------
-    opt_result: OptimizeResult
+    -------
+    result : :py:class:`~OptimizeResult`
+        The optimization result represented as a :py:class:`~OptimizeResult` object.
+        Important attributes are: ``x`` the solution array, ``fun`` the value
+        of the function at the solution, and ``message`` which describes the
+        cause of the termination.
+        See :py:class:`~OptimizeResult` for a description of other attributes.
     '''
     if randomize:
         method='stogo_rand'
@@ -261,8 +274,9 @@ def isres(fun, bounds, args=(), constraints = [], x0='random', population=None,
     '''
     Global optimization via the Improved Stochastic Ranking Evolution Strategy
 
-    NOTE: IRES does not seem to respect the relative and absolute convergence criteria.
-    By default, it will always run for the maximal number of iterations.
+    .. note::
+        ISRES does not seem to respect the relative and absolute convergence criteria.
+        By default, it will always run for the maximal number of iterations.
 
     References:
 
@@ -307,8 +321,13 @@ def isres(fun, bounds, args=(), constraints = [], x0='random', population=None,
         Dictionary of additional options supplied to the solver.
 
     Returns
-    --------
-    opt_result: OptimizeResult
+    -------
+    result : :py:class:`~OptimizeResult`
+        The optimization result represented as a :py:class:`~OptimizeResult` object.
+        Important attributes are: ``x`` the solution array, ``fun`` the value
+        of the function at the solution, and ``message`` which describes the
+        cause of the termination.
+        See :py:class:`~OptimizeResult` for a description of other attributes.
     '''
     if x0 == 'random':
         lower, upper = zip(*normalize_bounds(bounds))
@@ -334,8 +353,9 @@ def esch(fun, bounds, args=(), x0='random', population=None,
     '''
     Global optimization via Differential Evolution variant
 
-    NOTE: ESCH does not seem to respect the relative and absolute convergence criteria.
-    By default, it will always run for the maximal number of iterations.
+    .. note::
+        ESCH does not seem to respect the relative and absolute convergence criteria.
+        By default, it will always run for the maximal number of iterations.
 
     Reference:
     C. H. da Silva Santos, "Parallel and Bio-Inspired Computing Applied 
@@ -374,8 +394,13 @@ def esch(fun, bounds, args=(), x0='random', population=None,
         Dictionary of additional options supplied to the solver.
 
     Returns
-    --------
-    opt_result: OptimizeResult
+    -------
+    result : :py:class:`~OptimizeResult`
+        The optimization result represented as a :py:class:`~OptimizeResult` object.
+        Important attributes are: ``x`` the solution array, ``fun`` the value
+        of the function at the solution, and ``message`` which describes the
+        cause of the termination.
+        See :py:class:`~OptimizeResult` for a description of other attributes.
     '''
     if x0 == 'random':
         lower, upper = zip(*normalize_bounds(bounds))
@@ -445,9 +470,13 @@ def crs(fun, bounds, args=(), x0='random', population = None,
         Dictionary of additional options supplied to the solver.
 
     Returns
-    --------
-    opt_result: OptimizeResult
-
+    -------
+    result : :py:class:`~OptimizeResult`
+        The optimization result represented as a :py:class:`~OptimizeResult` object.
+        Important attributes are: ``x`` the solution array, ``fun`` the value
+        of the function at the solution, and ``message`` which describes the
+        cause of the termination.
+        See :py:class:`~OptimizeResult` for a description of other attributes.
     '''
     if x0 == 'random':
         lower, upper = zip(*normalize_bounds(bounds))
