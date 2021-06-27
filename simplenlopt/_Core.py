@@ -60,6 +60,7 @@ NLOPT_MESSAGES = {
 # scipy.optimize)
 class OptimizeResult(dict):
     r""" Represents the optimization result.
+
     Attributes
     ----------
     x : ndarray
@@ -71,7 +72,7 @@ class OptimizeResult(dict):
     fun : float
         Value of the objective function.
     nfev : int
-        Number of evaluations of the objective functions.
+        Number of evaluations of the objective function.
     """
     def __getattr__(self, name):
         try:
@@ -480,6 +481,15 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
         maximum absolute time until the optimization is terminated.
     solver_options: dict, optional, default None
         Dictionary of additional options supplied to the solver.
+
+    Returns
+    -------
+    res : OptimizeResult
+        The optimization result represented as a `OptimizeResult` object.
+        Important attributes are: ``x`` the solution array, ``fun`` the value
+        of the function at the solution, and ``message`` which describes the
+        cause of the termination.
+        See `OptimizeResult` for a description of other attributes.
     """
 
     #if no method set, choose automatically
