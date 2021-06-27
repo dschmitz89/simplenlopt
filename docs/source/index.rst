@@ -17,7 +17,7 @@ Features
 Installation
 --------
 
-.. code::
+.. code:: bash
 
    git clone https://github.com/dschmitz89/simplenlopt
    cd simplenlopt
@@ -26,7 +26,7 @@ Installation
 Example: Minimizing the Rosenbrock function in simplenlopt and scipy
 -----
 
-.. code::
+.. code-block:: python
    import simplenlopt
    from scipy.optimize import rosen, rosen_der
    import scipy
