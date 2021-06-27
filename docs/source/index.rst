@@ -27,6 +27,7 @@ Example: Minimizing the Rosenbrock function in simplenlopt and scipy
 -----
 
 .. code-block:: python
+
    import simplenlopt
    from scipy.optimize import rosen, rosen_der
    import scipy
