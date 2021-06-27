@@ -1,8 +1,5 @@
-simplenlopt package
+API reference
 ===================
-
-Module contents
----------------
 
 .. automodule:: simplenlopt
    :members:
