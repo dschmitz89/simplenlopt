@@ -4,10 +4,13 @@
 A simple, SciPy like interface for the excellent nonlinear optimization library [NLopt](https://github.com/stevengj/nlopt) to make switching between SciPy and NLopt a piece of cake. SimpleNLopt's functions can act as a drop-in replacement for SciPy functions. Major differences compared to plain NLopt:
 
 * SciPy like minimize(method='NLopt algorithm') API for NLopt's local optimizers
-* Scipy like interfaces to NLopt's global optimizers with hard stopping criteria
-* SciPy like curve fitting using NLopt algorithms
 * Automatic numerical approximation of the gradient if analytical gradient is not available
 * Automatic handling of constraints via the augmented lagrangian method without boilerplate code
+* Scipy like interfaces to NLopt's global optimizers with hard stopping criteria
+* SciPy like curve fitting using NLopt's algorithms
+
+## Documentation
+https://simplenlopt.readthedocs.io/en/latest/index.html
 
 ## Installation
 ```bash
