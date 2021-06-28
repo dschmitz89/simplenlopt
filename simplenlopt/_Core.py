@@ -455,6 +455,8 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
             - 'newuoa_bound'
             - 'newuoa'
 
+        See `NLopt documentation <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_ 
+        for a detailed description of these methods.\n
         If 'auto', will be set to 'bobyqa'/'cobyla' if jac=None ('cobyla' if constraints are set) 
         or 'lbfgs'/'slsqp' if jac != None ('slsqp' if constraints set)
 
