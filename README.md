@@ -1,6 +1,8 @@
 # simplenlopt
 At the moment in beta version! 
 
+[![Documentation Status](https://readthedocs.org/projects/simplenlopt/badge/?version=latest)](https://simplenlopt.readthedocs.io/en/latest/?badge=latest)
+
 ## Overview
 A simple, SciPy like interface for the excellent nonlinear optimization library [NLopt](https://github.com/stevengj/nlopt) to make switching between SciPy and NLopt a piece of cake. SimpleNLopt's functions can act as a drop-in replacement for SciPy functions. Major differences compared to plain NLopt:
 
