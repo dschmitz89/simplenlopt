@@ -18,21 +18,10 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
     maxeval='auto', maxtime = None, local_minimizer_options={}):
     '''
     Global optimization via MultiLevel Single Linkage (MLSL)
-    
-    MLSL works by performing repeated local minimizations and heuristic rules to avoid
-    repeated searches of the same areas of the parameter space.
 
     .. note::
         MLSL does not seem to respect the relative and absolute convergence criteria.
         By default, it will always run for the maximal number of iterations.
-
-    References:
-
-    A. H. G. Rinnooy Kan and G. T. Timmer, "Stochastic global optimization methods," 
-    Mathematical Programming, vol. 39, p. 27-78 (1987)
-
-    Sergei Kucherenko and Yury Sytsko, "Application of deterministic low-discrepancy sequences 
-    in global optimization," Computational Optimization and Applications, vol. 30, p. 297-318 (2005)
 
     Parameters
     --------
@@ -43,14 +32,14 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
     args : list, optional, default ()
         Further arguments to describe the objective function
     jac : {callable,  '2-point', '3-point', 'NLOpt', bool}, optional, default None
-        If callable, must be in the form ``jac(x, *args)``, where ``x`` is the argument 
+        If callable, must be in the form ``jac(x, *args)``, where ``x`` is the argument. 
         in the form of a 1-D array and args is a tuple of any additional fixed parameters 
-        needed to completely specify the function
-        If '2-point' will use forward difference to approximate the gradient
-        If '3-point' will use central difference to approximate the gradient
+        needed to completely specify the function.\n
+        If '2-point' will use forward difference to approximate the gradient.\n
+        If '3-point' will use central difference to approximate the gradient.\n
         If 'NLOpt', must be in the form ``jac(x, grad, *args)``, where ``x`` is the argument 
         in the form of a 1-D array, ``grad`` a 1-D array containing the gradient 
-        and args is a tuple of any additional fixed parameters needed to completely specify the function
+        and args is a tuple of any additional fixed parameters needed to completely specify the function.
     x0 : {ndarray, 'random'}, optional, default 'random'
         Initial parameter vector guess.
         If ndarray, must be a 1-D array
@@ -59,10 +48,31 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
         If True, starting points for local minimizations are sampled from a Sobol sequence.
     population : int, optional, default 4
         Number of local searches per iteration. 
-    local_minimizer : {str, 'auto'}, optional, default = 'auto'
-        Local minimizer used. If 'auto', either LBFGS if gradient is supplied or BOBYQA if
-        no gradient is supplied. If string, must be one of the local minimizers that can be fed 
-        to ``minimize``.
+    local_minimizer : string, optional, default 'auto'
+        Local Optimization algorithm to use. If string, Should be one of 
+
+            - 'lbfgs'
+            - 'slsqp'
+            - 'mma'
+            - 'ccsaq'
+            - 'tnewton'
+            - 'tnewton_restart'
+            - 'tnewton_precond'
+            - 'tnewton_precond_restart'
+            - 'var1'
+            - 'var2'
+            - 'bobyqa'
+            - 'cobyla'
+            - 'neldermead'
+            - 'sbplx'
+            - 'praxis'
+            - 'newuoa_bound'
+            - 'newuoa'
+            - 'auto'
+
+        See `NLopt documentation <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_ 
+        for a detailed description of these methods.\n
+        If 'auto', will default to "lbfgs" if jac!= None and "b.obyqa" if jac=None
     ftol_rel : float, optional, default 1e-8
         Relative function tolerance to signal convergence 
     xtol_rel : float, optional, default 1e-6
@@ -88,6 +98,14 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
         of the function at the solution, and ``message`` which describes the
         cause of the termination.
         See :py:class:`~OptimizeResult` for a description of other attributes.
+
+    Notes
+    -------
+    References:\n
+    A. H. G. Rinnooy Kan and G. T. Timmer, "Stochastic global optimization methods," 
+    Mathematical Programming, vol. 39, p. 27-78 (1987)\n
+    Sergei Kucherenko and Yury Sytsko, "Application of deterministic low-discrepancy sequences 
+    in global optimization," Computational Optimization and Applications, vol. 30, p. 297-318 (2005)
     '''
     #if local_minimizer not given, choose automatically
     #depending on gradient availability
@@ -185,15 +203,6 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
         STOGO does not seem to respect the relative and absolute convergence criteria.
         By default, it will always run for the maximal number of iterations.
 
-    References:
-
-    S. Zertchaninov and K. Madsen, "A C++ Programme for Global Optimization,"
-    IMM-REP-1998-04, Department of Mathematical Modelling,
-    Technical University of Denmark, DK-2800 Lyngby, Denmark, 1998
-
-    S. Gudmundsson, "Parallel Global Optimization," M.Sc. Thesis, IMM,
-    Technical University of Denmark, 1998
-
     Parameters
     --------
     fun : callable 
@@ -205,20 +214,15 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
     jac : {callable,  '2-point', '3-point', 'NLOpt', bool}, optional, default None
         If callable, must be in the form ``jac(x, *args)``, where ``x`` is the argument 
         in the form of a 1-D array and args is a tuple of any additional fixed parameters 
-        needed to completely specify the function
-
-        If '2-point' will use forward difference to approximate the gradient
-
-        If '3-point' will use central difference to approximate the gradient
-
+        needed to completely specify the function. \n
+        If '2-point' will use forward difference to approximate the gradient.\n
+        If '3-point' will use central difference to approximate the gradient.\n
         If 'NLOpt', must be in the form ``jac(x, grad, *args)``, where ``x`` is the argument 
-        in the form of a 1-D array, ``grad`` a 1-D array containing the gradient 
-        and args is a tuple of any additional fixed parameters needed to completely specify the function
+        in the form of a 1-D array, ``grad`` a 1-D array containing the gradient
+        and args is a tuple of any additional fixed parameters needed to completely specify the function.
     x0 : {ndarray, 'random'}, optional, default 'random'
-        Initial parameter vector guess.
-
-        If ndarray, must be a 1-D array
-
+        Initial parameter vector guess.\n
+        If ndarray, must be a 1-D array.\n
         If 'random', picks a random initial guess in the feasible region.
     randomize: bool, optional, default False
         If True, randomizes the branching process
@@ -246,6 +250,15 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
         of the function at the solution, and ``message`` which describes the
         cause of the termination.
         See :py:class:`~OptimizeResult` for a description of other attributes.
+
+    Notes
+    -------
+    References:\n
+    S. Zertchaninov and K. Madsen, "A C++ Programme for Global Optimization,"
+    IMM-REP-1998-04, Department of Mathematical Modelling,
+    Technical University of Denmark, DK-2800 Lyngby, Denmark, 1998\n
+    S. Gudmundsson, "Parallel Global Optimization," M.Sc. Thesis, IMM,
+    Technical University of Denmark, 1998
     '''
     if randomize:
         method='stogo_rand'
@@ -277,15 +290,6 @@ def isres(fun, bounds, args=(), constraints = [], x0='random', population=None,
     .. note::
         ISRES does not seem to respect the relative and absolute convergence criteria.
         By default, it will always run for the maximal number of iterations.
-
-    References:
-
-    Thomas Philip Runarsson and Xin Yao, "Search biases in constrained evolutionary optimization,"
-    IEEE Trans. on Systems, Man, and Cybernetics Part C: Applications and Reviews,
-    vol. 35 (no. 2), pp. 233-243 (2005)
-
-    Thomas P. Runarsson and Xin Yao, "Stochastic ranking for constrained evolutionary optimization," 
-    IEEE Trans. Evolutionary Computation, vol. 4 (no. 3), pp. 284-294 (2000)
 
     Parameters
     --------
@@ -328,6 +332,15 @@ def isres(fun, bounds, args=(), constraints = [], x0='random', population=None,
         of the function at the solution, and ``message`` which describes the
         cause of the termination.
         See :py:class:`~OptimizeResult` for a description of other attributes.
+
+    Notes
+    -------
+    References:\n
+    Thomas Philip Runarsson and Xin Yao, "Search biases in constrained evolutionary optimization,"
+    IEEE Trans. on Systems, Man, and Cybernetics Part C: Applications and Reviews,
+    vol. 35 (no. 2), pp. 233-243 (2005)\n
+    Thomas P. Runarsson and Xin Yao, "Stochastic ranking for constrained evolutionary optimization," 
+    IEEE Trans. Evolutionary Computation, vol. 4 (no. 3), pp. 284-294 (2000)
     '''
     if x0 == 'random':
         lower, upper = zip(*normalize_bounds(bounds))
@@ -357,11 +370,6 @@ def esch(fun, bounds, args=(), x0='random', population=None,
         ESCH does not seem to respect the relative and absolute convergence criteria.
         By default, it will always run for the maximal number of iterations.
 
-    Reference:
-    C. H. da Silva Santos, "Parallel and Bio-Inspired Computing Applied 
-    to Analyze Microwave and Photonic Metamaterial Strucutures," 
-    Ph.D. thesis, University of Campinas, (2010)
-
     Parameters
     --------
     fun : callable 
@@ -371,8 +379,8 @@ def esch(fun, bounds, args=(), x0='random', population=None,
     args : list, optional, default ()
         Further arguments to describe the objective function
     x0 : {ndarray, 'random'}, optional, default 'random'
-        Initial parameter vector guess.
-        If ndarray, must be a 1-D array
+        Initial parameter vector guess.\n
+        If ndarray, must be a 1-D array.\n
         if 'random', picks a random initial guess in the feasible region.
     population : int, optional, default None
         Population size.
@@ -401,6 +409,12 @@ def esch(fun, bounds, args=(), x0='random', population=None,
         of the function at the solution, and ``message`` which describes the
         cause of the termination.
         See :py:class:`~OptimizeResult` for a description of other attributes.
+
+    Notes
+    -------
+    Reference: C. H. da Silva Santos, "Parallel and Bio-Inspired Computing Applied 
+    to Analyze Microwave and Photonic Metamaterial Strucutures," 
+    Ph.D. thesis, University of Campinas, (2010)
     '''
     if x0 == 'random':
         lower, upper = zip(*normalize_bounds(bounds))
@@ -426,18 +440,6 @@ def crs(fun, bounds, args=(), x0='random', population = None,
     '''
     Global optimization via Controlled Random Search with local mutation
 
-    References:
-    
-    P. Kaelo and M. M. Ali, "Some variants of the controlled random search algorithm
-    for global optimization," J. Optim. Theory Appl. 130 (2), 253-264 (2006)
-    
-    W. L. Price, "Global optimization by controlled random search," 
-    J. Optim. Theory Appl. 40 (3), p. 333-348 (1983)
-
-    W. L. Price, "A controlled random search procedure for global optimization," 
-    in Towards Global Optimization 2, p. 71-84 edited by L. C. W. Dixon and G. P. Szego 
-    (North-Holland Press, Amsterdam, 1978)
-
     Parameters
     --------
     fun : callable 
@@ -477,6 +479,17 @@ def crs(fun, bounds, args=(), x0='random', population = None,
         of the function at the solution, and ``message`` which describes the
         cause of the termination.
         See :py:class:`~OptimizeResult` for a description of other attributes.
+
+    Notes
+    -------
+    References:\n
+    P. Kaelo and M. M. Ali, "Some variants of the controlled random search algorithm
+    for global optimization," J. Optim. Theory Appl. 130 (2), 253-264 (2006)\n
+    W. L. Price, "Global optimization by controlled random search," 
+    J. Optim. Theory Appl. 40 (3), p. 333-348 (1983)\n
+    W. L. Price, "A controlled random search procedure for global optimization," 
+    in Towards Global Optimization 2, p. 71-84 edited by L. C. W. Dixon and G. P. Szego 
+    (North-Holland Press, Amsterdam, 1978)
     '''
     if x0 == 'random':
         lower, upper = zip(*normalize_bounds(bounds))
@@ -497,15 +510,6 @@ def direct(fun, bounds, args=(), locally_biased = True, scale = True,
     ftol_abs = 1e-14, xtol_abs = 1e-8, maxeval=None, maxtime=None, solver_options={}):
     '''
     Global optimization via variants of the DIviding RECTangles (DIRECT) algorithm
-    
-    Default variant: DIRECT_L
-
-    References:
-    D. R. Jones, C. D. Perttunen, and B. E. Stuckmann, "Lipschitzian optimization without 
-    the lipschitz constant," J. Optimization Theory and Applications, vol. 79, p. 157 (1993)
-
-    J. M. Gablonsky and C. T. Kelley, "A locally-biased form of the DIRECT algorithm," 
-    J. Global Optimization, vol. 21 (1), p. 27-37 (2001)
 
     Parameters
     --------
@@ -547,6 +551,17 @@ def direct(fun, bounds, args=(), locally_biased = True, scale = True,
         of the function at the solution, and ``message`` which describes the
         cause of the termination.
         See :py:class:`~OptimizeResult` for a description of other attributes.
+
+    Notes
+    -------
+    References:\n
+    D. R. Jones, C. D. Perttunen, and B. E. Stuckmann, "Lipschitzian optimization without 
+    the lipschitz constant," J. Optimization Theory and Applications, vol. 79, p. 157 (1993)\n
+    J. M. Gablonsky and C. T. Kelley, "A locally-biased form of the DIRECT algorithm," 
+    J. Global Optimization, vol. 21 (1), p. 27-37 (2001)\n\n
+    By default will use the locally biased varian with NLopt code "DIRECT_L". For objective functions
+    with many local minima, setting ``locally_biased=False`` which calls the DIRECT algorithm without 
+    local bias is advisable.
     '''
 
     #pick the desired version of DIRECT

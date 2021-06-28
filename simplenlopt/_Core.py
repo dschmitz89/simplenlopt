@@ -434,7 +434,7 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
         Starting guess for the decision variable
     args : tuple, optional, default ()
         Further arguments to describe the objective function
-    method : string or 'auto', optional, default 'auto'
+    method : string, optional, default 'auto'
         Optimization algorithm to use. If string, Should be one of 
 
             - 'lbfgs'
@@ -454,14 +454,24 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
             - 'praxis'
             - 'newuoa_bound'
             - 'newuoa'
+            - 'auto'
 
         See `NLopt documentation <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_ 
         for a detailed description of these methods.\n
         If 'auto', will be set to 'bobyqa'/'cobyla' if jac=None ('cobyla' if constraints are set) 
-        or 'lbfgs'/'slsqp' if jac != None ('slsqp' if constraints set)
-
+        or 'lbfgs'/'slsqp' if jac != None ('slsqp' if constraints set).\n
         If the chosen method does not support the required constraints, the augmented lagrangian 
         is called to handle them.
+
+    jac : {callable,  '2-point', '3-point', 'NLOpt', bool}, optional, default None
+        If callable, must be in the form ``jac(x, *args)``, where ``x`` is the argument
+        in the form of a 1-D array and args is a tuple of any additional fixed parameters 
+        needed to completely specify the function.\n
+        If '2-point' will use forward difference to approximate the gradient.\n
+        If '3-point' will use central difference to approximate the gradient.\n
+        If 'NLOpt', must be in the form ``jac(x, grad, *args)``, where ``x`` is the argument 
+        in the form of a 1-D array, ``grad`` a 1-D array containing the gradient 
+        and args is a tuple of any additional fixed parameters needed to completely specify the function.
     bounds : tuple of array-like
         Bounds for variables. ``(min, max)`` pairs for each element in ``x``,
         defining the finite lower and upper bounds for the optimizing argument of ``fun``. 
@@ -669,7 +679,7 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
         Starting guess for the decision variable
     args : tuple, optional, default ()
         Further arguments to describe the objective function
-    method : string or 'auto', optional, default 'auto'
+    method : string, optional, default 'auto'
         Optimization algorithm to use. If string, should be one of 
 
             - 'lbfgs'
@@ -689,17 +699,26 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
             - 'praxis'
             - 'newuoa_bound'
             - 'newuoa'
+            - 'auto'
 
+        See `NLopt documentation <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_ 
+        for a detailed description of these methods.\n
         If 'auto', a suitable solver is chosen based on the availability
         of gradient information and if also inequalities should be penalized:
-
-        jac != None and penalize_inequalities=True -> 'lbfgs'
-
-        jac = None and penalize_inequalities=True -> 'bobyqa'
-
-        jac != None and penalize_inequalities=False -> 'mma'
-
+        jac != None and penalize_inequalities=True -> 'lbfgs'\n
+        jac != None and penalize_inequalities=False -> 'mma'\n
+        jac = None and penalize_inequalities=True -> 'bobyqa'\n
         jac = None and penalize_inequalities=False -> 'cobyla'
+
+    jac : {callable,  '2-point', '3-point', 'NLOpt', bool}, optional, default None
+        If callable, must be in the form ``jac(x, *args)``, where ``x`` is the argument.
+        in the form of a 1-D array and args is a tuple of any additional fixed parameters 
+        needed to completely specify the function.\n
+        If '2-point' will use forward difference to approximate the gradient.\n
+        If '3-point' will use central difference to approximate the gradient.\n
+        If 'NLOpt', must be in the form ``jac(x, grad, *args)``, where ``x`` is the argument 
+        in the form of a 1-D array, ``grad`` a 1-D array containing the gradient 
+        and args is a tuple of any additional fixed parameters needed to completely specify the function.
     bounds : tuple of array-like, optional, default None
         Bounds for variables. ``(min, max)`` pairs for each element in ``x``,
         defining the finite lower and upper bounds for the optimizing argument of ``fun``. 
@@ -707,8 +726,8 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
     constraints: list, optional, default ()
         List of constraint functions. Constraints must be of the form ``f(x)`` for a constraint of the form f(x) <= 0.
     penalize_inequalities : bool, optional, default True
-        If True, also penalizes violation of inequality constraints (NLopt code: AUGLAG).
-        If False, only penalizes violation of equality constraints (NLopt code: AUGLAG_EQ). 
+        If True, also penalizes violation of inequality constraints (NLopt code: AUGLAG).\n
+        If False, only penalizes violation of equality constraints (NLopt code: AUGLAG_EQ).\n
         In this case the chosen method must be able to handle inequality constraints.
     ftol_rel : float, optional, default 1e-8
         Relative function tolerance to signal convergence 
