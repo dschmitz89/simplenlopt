@@ -446,14 +446,12 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
             - 'tnewton_precond': truncated Newton with preconditioning
             - 'tnewton_precond_restart': truncated Newton with preconditioning and restarting
             - 'var1': Shifted limited-memory variable metric with rank 1-method
-            - 'var2' Shifted limited-memory variable metric with rank 2-method
+            - 'var2': Shifted limited-memory variable metric with rank 2-method
             - 'bobyqa': Bounded optimization by quadratic approximation
             - 'cobyla': Constrained optimization by linear approximation
             - 'neldermead': Nelder-Mead optimization
             - 'sbplx': Subplex algorithm
             - 'praxis': Principal Axis algorithm
-            - 'newuoa_bound': Powell's NEW Unconstrained Optimization Algorithm with bounds
-            - 'newuoa': NEW Unconstrained Optimization Algorithm
             - 'auto'
 
         See `NLopt documentation <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_ 
@@ -681,23 +679,21 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
     method : string, optional, default 'auto'
         Optimization algorithm to use. Should be one of 
 
-            - 'lbfgs'
-            - 'slsqp'
-            - 'mma'
-            - 'ccsaq'
-            - 'tnewton'
-            - 'tnewton_restart'
-            - 'tnewton_precond'
-            - 'tnewton_precond_restart'
-            - 'var1'
-            - 'var2'
-            - 'bobyqa'
-            - 'cobyla'
-            - 'neldermead'
-            - 'sbplx'
-            - 'praxis'
-            - 'newuoa_bound'
-            - 'newuoa'
+            - 'lbfgs': Limited-memory Broyden-Fletcher Goldfarb Shanno algorithm
+            - 'slsqp': Sequential least squares programming
+            - 'mma': Method of moving asymptotes
+            - 'ccsaq': conservative convex separable approximation
+            - 'tnewton': truncated Newton
+            - 'tnewton_restart': truncated Newton with restarting
+            - 'tnewton_precond': truncated Newton with preconditioning
+            - 'tnewton_precond_restart': truncated Newton with preconditioning and restarting
+            - 'var1': Shifted limited-memory variable metric with rank 1-method
+            - 'var2': Shifted limited-memory variable metric with rank 2-method
+            - 'bobyqa': Bounded optimization by quadratic approximation
+            - 'cobyla': Constrained optimization by linear approximation
+            - 'neldermead': Nelder-Mead optimization
+            - 'sbplx': Subplex algorithm
+            - 'praxis': Principal Axis algorithm
             - 'auto'
 
         See `NLopt documentation <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_ 

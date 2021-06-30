@@ -51,28 +51,26 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
     local_minimizer : string, optional, default 'auto'
         Local Optimization algorithm to use. If string, Should be one of 
 
-            - 'lbfgs'
-            - 'slsqp'
-            - 'mma'
-            - 'ccsaq'
-            - 'tnewton'
-            - 'tnewton_restart'
-            - 'tnewton_precond'
-            - 'tnewton_precond_restart'
-            - 'var1'
-            - 'var2'
-            - 'bobyqa'
-            - 'cobyla'
-            - 'neldermead'
-            - 'sbplx'
-            - 'praxis'
-            - 'newuoa_bound'
-            - 'newuoa'
+            - 'lbfgs': Limited-memory Broyden-Fletcher Goldfarb Shanno algorithm
+            - 'slsqp': Sequential least squares programming
+            - 'mma': Method of moving asymptotes
+            - 'ccsaq': conservative convex separable approximation
+            - 'tnewton': truncated Newton
+            - 'tnewton_restart': truncated Newton with restarting
+            - 'tnewton_precond': truncated Newton with preconditioning
+            - 'tnewton_precond_restart': truncated Newton with preconditioning and restarting
+            - 'var1': Shifted limited-memory variable metric with rank 1-method
+            - 'var2': Shifted limited-memory variable metric with rank 2-method
+            - 'bobyqa': Bounded optimization by quadratic approximation
+            - 'cobyla': Constrained optimization by linear approximation
+            - 'neldermead': Nelder-Mead optimization
+            - 'sbplx': Subplex algorithm
+            - 'praxis': Principal Axis algorithm
             - 'auto'
 
         See `NLopt documentation <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_ 
         for a detailed description of these methods.\n
-        If 'auto', will default to "lbfgs" if jac!= None and "b.obyqa" if jac=None
+        If 'auto', will default to "lbfgs" if ``jac!= None`` and "bobyqa" if ``jac=None``
     ftol_rel : float, optional, default 1e-8
         Relative function tolerance to signal convergence 
     xtol_rel : float, optional, default 1e-6
