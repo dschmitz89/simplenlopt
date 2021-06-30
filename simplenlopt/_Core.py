@@ -435,34 +435,33 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
     args : tuple, optional, default ()
         Further arguments to describe the objective function
     method : string, optional, default 'auto'
-        Optimization algorithm to use. If string, Should be one of 
+        Optimization algorithm to use. Should be one of 
 
-            - 'lbfgs'
-            - 'slsqp'
-            - 'mma'
-            - 'ccsaq'
-            - 'tnewton'
-            - 'tnewton_restart'
-            - 'tnewton_precond'
-            - 'tnewton_precond_restart'
-            - 'var1'
-            - 'var2'
-            - 'bobyqa'
-            - 'cobyla'
-            - 'neldermead'
-            - 'sbplx'
-            - 'praxis'
-            - 'newuoa_bound'
-            - 'newuoa'
+            - 'lbfgs': Limited-memory Broyden-Fletcher Goldfarb Shanno algorithm
+            - 'slsqp': Sequential least squares programming
+            - 'mma': Method of moving asymptotes
+            - 'ccsaq': conservative convex separable approximation
+            - 'tnewton': truncated Newton
+            - 'tnewton_restart': truncated Newton with restarting
+            - 'tnewton_precond': truncated Newton with preconditioning
+            - 'tnewton_precond_restart': truncated Newton with preconditioning and restarting
+            - 'var1': Shifted limited-memory variable metric with rank 1-method
+            - 'var2' Shifted limited-memory variable metric with rank 2-method
+            - 'bobyqa': Bounded optimization by quadratic approximation
+            - 'cobyla': Constrained optimization by linear approximation
+            - 'neldermead': Nelder-Mead optimization
+            - 'sbplx': Subplex algorithm
+            - 'praxis': Principal Axis algorithm
+            - 'newuoa_bound': Powell's NEW Unconstrained Optimization Algorithm with bounds
+            - 'newuoa': NEW Unconstrained Optimization Algorithm
             - 'auto'
 
         See `NLopt documentation <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_ 
         for a detailed description of these methods.\n
-        If 'auto', will be set to 'bobyqa'/'cobyla' if jac=None ('cobyla' if constraints are set) 
-        or 'lbfgs'/'slsqp' if jac != None ('slsqp' if constraints set).\n
+        If 'auto', will be set to 'bobyqa'/'cobyla' if ``jac=None`` ('cobyla' if constraints are set) 
+        or 'lbfgs'/'slsqp' if ``jac != None`` ('slsqp' if constraints set).\n
         If the chosen method does not support the required constraints, the augmented lagrangian 
         is called to handle them.
-
     jac : {callable,  '2-point', '3-point', 'NLOpt', bool}, optional, default None
         If callable, must be in the form ``jac(x, *args)``, where ``x`` is the argument
         in the form of a 1-D array and args is a tuple of any additional fixed parameters 
@@ -680,7 +679,7 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
     args : tuple, optional, default ()
         Further arguments to describe the objective function
     method : string, optional, default 'auto'
-        Optimization algorithm to use. If string, should be one of 
+        Optimization algorithm to use. Should be one of 
 
             - 'lbfgs'
             - 'slsqp'
@@ -704,7 +703,7 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
         See `NLopt documentation <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_ 
         for a detailed description of these methods.\n
         If 'auto', a suitable solver is chosen based on the availability
-        of gradient information and if also inequalities should be penalized:
+        of gradient information and if also inequalities should be penalized:\n
         jac != None and penalize_inequalities=True -> 'lbfgs'\n
         jac != None and penalize_inequalities=False -> 'mma'\n
         jac = None and penalize_inequalities=True -> 'bobyqa'\n
