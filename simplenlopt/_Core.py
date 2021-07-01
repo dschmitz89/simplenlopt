@@ -658,15 +658,6 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
     maxtime=None, solver_options={}):
     """
     Constrained local minimization via the augmented lagrangian method
-    
-    References:
-
-    Andrew R. Conn, Nicholas I. M. Gould, and Philippe L. Toint, 
-    "A globally convergent augmented Lagrangian algorithm for optimization 
-    with general constraints and simple bounds," SIAM J. Numer. Anal. vol. 28, no. 2, p. 545-572 (1991)
-
-    E. G. Birgin and J. M. Martínez, "Improving ultimate convergence of an augmented Lagrangian method," 
-    Optimization Methods and Software vol. 23, no. 2, p. 177-195 (2008)
 
     Parameters
     ----------
@@ -747,6 +738,18 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
         of the function at the solution, and ``message`` which describes the
         cause of the termination.
         See :py:class:`~OptimizeResult` for a description of other attributes.
+
+    Notes
+    -------
+    References:\n
+    Andrew R. Conn, Nicholas I. M. Gould, and Philippe L. Toint, 
+    "A globally convergent augmented Lagrangian algorithm for optimization 
+    with general constraints and simple bounds," SIAM J. Numer. Anal. vol. 28, no. 2, p. 545-572 (1991)\n
+    E. G. Birgin and J. M. Martínez, "Improving ultimate convergence of an augmented Lagrangian method," 
+    Optimization Methods and Software vol. 23, no. 2, p. 177-195 (2008)
+
+    The augmented lagrangian transforms a constrained optimization problem into an 
+    unconstrained one by constructing penalty terms for violating the constraints. 
     """
 
     #choose version of augmented lagrangian

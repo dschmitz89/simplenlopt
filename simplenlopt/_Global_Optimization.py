@@ -504,7 +504,7 @@ def crs(fun, bounds, args=(), x0='random', population = None,
     return res
 
 def direct(fun, bounds, args=(), locally_biased = True, scale = True, 
-    randomize = False, original = False, ftol_rel = 1e-8, xtol_rel = 1e-6, 
+    randomize = False, ftol_rel = 1e-8, xtol_rel = 1e-6, 
     ftol_abs = 1e-14, xtol_abs = 1e-8, maxeval=None, maxtime=None, solver_options={}):
     '''
     Global optimization via variants of the DIviding RECTangles (DIRECT) algorithm
@@ -523,8 +523,6 @@ def direct(fun, bounds, args=(), locally_biased = True, scale = True,
         If True, scales the parameter space to a hypercube of length 1 in all dimensions
     randomize : boolean, optional, default False
         If True, randomize the algorithm by partly randomizing which side of the hyperrectangle is halved
-    original : boolean, optional, default False
-        If True, applies the original implementation of DIRECT by Jablonsky
     ftol_rel : float, optional, default 1e-8
         Relative function tolerance to signal convergence 
     xtol_rel : float, optional, default 1e-6
@@ -557,7 +555,7 @@ def direct(fun, bounds, args=(), locally_biased = True, scale = True,
     the lipschitz constant," J. Optimization Theory and Applications, vol. 79, p. 157 (1993)\n
     J. M. Gablonsky and C. T. Kelley, "A locally-biased form of the DIRECT algorithm," 
     J. Global Optimization, vol. 21 (1), p. 27-37 (2001)\n\n
-    By default will use the locally biased varian with NLopt code "DIRECT_L". For objective functions
+    By default will use the locally biased variant with NLopt code "DIRECT_L". For objective functions
     with many local minima, setting ``locally_biased=False`` which calls the DIRECT algorithm without 
     local bias is advisable.
     '''
@@ -568,15 +566,10 @@ def direct(fun, bounds, args=(), locally_biased = True, scale = True,
         if locally_biased == True:
             if randomize == True:
                 direct_algorithm = 'GN_DIRECT_L_RAND'
-            elif original:
-                direct_algorithm = 'GN_ORIG_DIRECT_L'
             else:
                 direct_algorithm = 'GN_DIRECT_L'
         else:
-            if original:
-                direct_algorithm = 'GN_ORIG_DIRECT'
-            else:
-                direct_algorithm = 'GN_DIRECT'
+            direct_algorithm = 'GN_DIRECT'
 
     else:
         if locally_biased:
