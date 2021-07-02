@@ -1,11 +1,22 @@
 import numpy as np
 from simplenlopt._Core import minimize, is_gradient_based
+from simplenlopt._Global_Optimization import direct, mlsl, stogo, isres, esch, crs
 from inspect import signature
 from scipy.linalg import svd
 from scipy.optimize._numdiff import approx_derivative
 from time import time
 #from numba import njit
 from warnings import warn
+
+def is_gradient_based_global(method):
+
+    if method in ['mlsl', 'MLSL']:
+
+        return True
+
+    else:
+
+        return is_gradient_based(method)
 
 def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None, 
         loss = 'linear', method = 'auto', jac = None, **minimize_kwargs):
@@ -33,7 +44,8 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
             - 'absolute' (minimizes absolute residuals)
 
     method : string or 'auto', optional, default 'auto'
-        Optimization algorithm to use. If string, Should be one of 
+        Optimization algorithm to use.\n
+        Local optimizers: 
 
             - 'lbfgs'
             - 'slsqp'
@@ -50,10 +62,17 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
             - 'neldermead'
             - 'sbplx'
             - 'praxis'
-            - 'newuoa_bound'
-            - 'newuoa'
+        
+        Global optimizers require ``bounds!=None``. Possible algorithms:
 
-        If 'auto', defaults to 'slsqp' if jac != None and 'bobyqa' if jac = None
+            - 'crs'
+            - 'direct'
+            - 'esch'
+            - 'isres'
+            - 'stogo'
+            - 'mlsl'
+
+        If 'auto', defaults to 'slsqp' if ``jac != None`` and 'bobyqa' if ``jac == None``
     jac : callable, optional
         Must be of the form ``jac(xdata)`` and return a N x m numpy array for
         N data points and m fitting parameters
@@ -74,6 +93,15 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
         if either `ydata` or `xdata` contain NaNs, or if incompatible options
         are used.
     '''
+
+    #check that bounds are provided for global optimizers
+    global_opt_list =['direct', 'mlsl', 'crs', 'stogo', 'isres', 'esch']
+    global_opt_list_upper = [x.upper() for x in global_opt_list]
+
+    if method in global_opt_list + global_opt_list_upper:
+        if bounds == None:
+            raise ValueError("method={} requires bounds.".format(method))
+
     #convert xdata and ydata to float and make sure that no NaNs are present
     xdata = np.asarray_chkfinite(xdata, float)
     ydata = np.asarray_chkfinite(ydata, float)
@@ -101,7 +129,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
     else:
         minimize_bounds = None
 
-    if callable(jac) and is_gradient_based(method):
+    if callable(jac) and is_gradient_based_global(method):
 
         if loss == 'linear':
 
@@ -121,26 +149,27 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
 
         if loss == 'absolute':
 
-                def objective(p):
+            def objective(p):
 
-                    prediction = f(xdata, *p)
-                    residuals = prediction - ydata
-                    if sigma is not None:
-                        residuals = residuals/sigma
-                    obj = np.sum(np.abs(residuals))
+                prediction = f(xdata, *p)
+                residuals = prediction - ydata
+                if sigma is not None:
+                    residuals = residuals/sigma
+                obj = np.sum(np.abs(residuals))
 
-                    jac_matrix = jac(xdata, *p)
-                    signs_residuals = np.sign(residuals)
-                    gradresiduals = signs_residuals[:, None] * jac_matrix
-                    grad = np.sum(gradresiduals, axis=0)
-                
-                    return obj, grad
+                jac_matrix = jac(xdata, *p)
+                signs_residuals = np.sign(residuals)
+                gradresiduals = signs_residuals[:, None] * jac_matrix
+                grad = np.sum(gradresiduals, axis=0)
+            
+                return obj, grad
 
-        if not method == 'auto':
-            res = minimize(objective, p0, method = method, bounds = minimize_bounds, jac = True)
-
+        if method in ['mlsl', 'MLSL']:
+            res = mlsl(objective, bounds = minimize_bounds, jac = True, **minimize_kwargs)
+        elif method in ['stogo', 'STOGO']:
+            res = stogo(objective, bounds = minimize_bounds, jac = True, **minimize_kwargs)
         else:
-            res = minimize(objective, p0, bounds = minimize_bounds, jac = True)
+            res = minimize(objective, p0, method = method, bounds = minimize_bounds, jac = True, **minimize_kwargs)
         
     else:
 
@@ -156,7 +185,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
 
                 return obj
 
-        if loss == 'squared':
+        if loss == 'linear':
             
             def objective(p):
 
@@ -168,7 +197,20 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
 
                 return obj
 
-        res = minimize(objective, p0, bounds = minimize_bounds, method = method)
+        if method in ['mlsl', 'MLSL']:
+            res = mlsl(objective, bounds = minimize_bounds, **minimize_kwargs)
+        elif method in ['stogo', 'STOGO']:
+            res = stogo(objective, bounds = minimize_bounds, **minimize_kwargs)
+        elif method in ['crs', 'CRS']:
+            res = crs(objective, bounds = minimize_bounds, **minimize_kwargs)
+        elif method in ['direct', 'DIRECT']:
+            res = direct(objective, bounds = minimize_bounds, **minimize_kwargs)
+        elif method in ['isres', 'ISRES']:
+            res = isres(objective, bounds = minimize_bounds, **minimize_kwargs)
+        elif method in ['esch', 'ESCH']:
+            res = esch(objective, bounds = minimize_bounds, **minimize_kwargs)
+        else:
+            res = minimize(objective, p0, method = method, bounds = minimize_bounds, **minimize_kwargs)
 
     popt = res.x
 

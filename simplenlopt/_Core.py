@@ -392,9 +392,12 @@ def is_gradient_based(method_name):
     Checks if solver uses derivatives based on NLOPT code
     '''
     if not method_name[2] == '_':
-
-        algorithm_index = _NLOPT_ALG_NAMES.index(method_name.upper())
-        method_name = _NLOPT_ALGORITHMS_KEYS[algorithm_index]
+        
+        try:
+            algorithm_index = _NLOPT_ALG_NAMES.index(method_name.upper())
+            method_name = _NLOPT_ALGORITHMS_KEYS[algorithm_index]
+        except:
+            raise ValueError("method={} not recognized".format(method_name))
 
     method_name = method_name.upper()
     
