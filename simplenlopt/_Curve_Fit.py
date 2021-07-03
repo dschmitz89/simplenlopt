@@ -1,5 +1,6 @@
 import numpy as np
 from simplenlopt._Core import minimize, is_gradient_based
+from simplenlopt._Global_Optimization import direct, mlsl, stogo, isres, esch, crs
 from inspect import signature
 from scipy.linalg import svd
 from scipy.optimize._numdiff import approx_derivative
@@ -7,8 +8,18 @@ from time import time
 #from numba import njit
 from warnings import warn
 
+def is_gradient_based_global(method):
+
+    if method in ['mlsl', 'MLSL']:
+
+        return True
+
+    else:
+
+        return is_gradient_based(method)
+
 def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None, 
-        loss = 'linear', method = 'auto', jac = None, **minimize_kwargs):
+        loss = 'linear', method = 'auto', jac = None, f_scale = 1, **minimize_kwargs):
     '''
     Curve fitting using NLopt's local optimizers in SciPy style
 
@@ -29,11 +40,13 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
     loss : string, optional, default 'linear'
         Should be one of
 
-            - 'linear' (yields squared residuals)
-            - 'absolute' (minimizes absolute residuals)
+            - 'linear': minimizes ``sum(residual**2)``
+            - 'absolute': minimizes ``sum(abs(residual))``
+            - 'cauchy': minimizes ``sum(f_scale**2 * ln(1 + residual**2/f_scale**2))``
 
     method : string or 'auto', optional, default 'auto'
-        Optimization algorithm to use. If string, Should be one of 
+        Optimization algorithm to use.\n
+        Local optimizers: 
 
             - 'lbfgs'
             - 'slsqp'
@@ -50,10 +63,17 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
             - 'neldermead'
             - 'sbplx'
             - 'praxis'
-            - 'newuoa_bound'
-            - 'newuoa'
+        
+        Global optimizers require ``bounds!=None``. Possible algorithms:
 
-        If 'auto', defaults to 'slsqp' if jac != None and 'bobyqa' if jac = None
+            - 'crs'
+            - 'direct'
+            - 'esch'
+            - 'isres'
+            - 'stogo'
+            - 'mlsl'
+
+        If 'auto', defaults to 'slsqp' if ``jac != None`` and 'bobyqa' if ``jac == None``
     jac : callable, optional
         Must be of the form ``jac(xdata)`` and return a N x m numpy array for
         N data points and m fitting parameters
@@ -74,6 +94,15 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
         if either `ydata` or `xdata` contain NaNs, or if incompatible options
         are used.
     '''
+
+    #check that bounds are provided for global optimizers
+    global_opt_list =['direct', 'mlsl', 'crs', 'stogo', 'isres', 'esch']
+    global_opt_list_upper = [x.upper() for x in global_opt_list]
+
+    if method in global_opt_list + global_opt_list_upper:
+        if bounds == None:
+            raise ValueError("method={} requires bounds.".format(method))
+
     #convert xdata and ydata to float and make sure that no NaNs are present
     xdata = np.asarray_chkfinite(xdata, float)
     ydata = np.asarray_chkfinite(ydata, float)
@@ -101,7 +130,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
     else:
         minimize_bounds = None
 
-    if callable(jac) and is_gradient_based(method):
+    if callable(jac) and is_gradient_based_global(method):
 
         if loss == 'linear':
 
@@ -119,28 +148,48 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
                 #print(grad)
                 return obj, grad
 
-        if loss == 'absolute':
+        elif loss == 'absolute':
 
-                def objective(p):
+            def objective(p):
 
-                    prediction = f(xdata, *p)
-                    residuals = prediction - ydata
-                    if sigma is not None:
-                        residuals = residuals/sigma
-                    obj = np.sum(np.abs(residuals))
+                prediction = f(xdata, *p)
+                residuals = prediction - ydata
+                if sigma is not None:
+                    residuals = residuals/sigma
+                obj = np.sum(np.abs(residuals))
 
-                    jac_matrix = jac(xdata, *p)
-                    signs_residuals = np.sign(residuals)
-                    gradresiduals = signs_residuals[:, None] * jac_matrix
-                    grad = np.sum(gradresiduals, axis=0)
-                
-                    return obj, grad
+                jac_matrix = jac(xdata, *p)
+                signs_residuals = np.sign(residuals)
+                gradresiduals = signs_residuals[:, None] * jac_matrix
+                grad = np.sum(gradresiduals, axis=0)
+            
+                return obj, grad
 
-        if not method == 'auto':
-            res = minimize(objective, p0, method = method, bounds = minimize_bounds, jac = True)
+        elif loss == 'cauchy':
+            
+            def objective(p):
 
+                prediction = f(xdata, *p)
+                residuals = prediction - ydata
+                if sigma is not None:
+                    residuals = residuals/sigma
+
+                fscaled_squared = f_scale * f_scale
+                squared_residuals = np.square(residuals)/fscaled_squared
+                obj = np.sum(fscaled_squared * np.log1p(squared_residuals))
+
+                jac_matrix = jac(xdata, *p)
+                gradresiduals = jac_matrix/(squared_residuals[:, None] +1)*2*residuals[:, None]
+                grad = np.sum(fscaled_squared * gradresiduals, axis = 0)
+
+                return obj, grad
+
+        if method in ['mlsl', 'MLSL']:
+            res = mlsl(objective, bounds = minimize_bounds, jac = True, **minimize_kwargs)
+        elif method in ['stogo', 'STOGO']:
+            res = stogo(objective, bounds = minimize_bounds, jac = True, **minimize_kwargs)
         else:
-            res = minimize(objective, p0, bounds = minimize_bounds, jac = True)
+            res = minimize(objective, p0, method = method, bounds = minimize_bounds, jac = True, **minimize_kwargs)
         
     else:
 
@@ -156,7 +205,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
 
                 return obj
 
-        if loss == 'squared':
+        if loss == 'linear':
             
             def objective(p):
 
@@ -168,7 +217,35 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
 
                 return obj
 
-        res = minimize(objective, p0, bounds = minimize_bounds, method = method)
+        if loss == 'cauchy':
+
+            fscaled_squared = f_scale * f_scale
+
+            def objective(p):
+
+                prediction = f(xdata, *p)
+                residuals = prediction - ydata
+                if sigma is not None:
+                    residuals = residuals/sigma
+                obj = np.sum(fscaled_squared * np.log1p(np.square(residuals)/fscaled_squared))
+
+                #print(obj)
+                return obj
+
+        if method in ['mlsl', 'MLSL']:
+            res = mlsl(objective, bounds = minimize_bounds, **minimize_kwargs)
+        elif method in ['stogo', 'STOGO']:
+            res = stogo(objective, bounds = minimize_bounds, **minimize_kwargs)
+        elif method in ['crs', 'CRS']:
+            res = crs(objective, bounds = minimize_bounds, **minimize_kwargs)
+        elif method in ['direct', 'DIRECT']:
+            res = direct(objective, bounds = minimize_bounds, **minimize_kwargs)
+        elif method in ['isres', 'ISRES']:
+            res = isres(objective, bounds = minimize_bounds, **minimize_kwargs)
+        elif method in ['esch', 'ESCH']:
+            res = esch(objective, bounds = minimize_bounds, **minimize_kwargs)
+        else:
+            res = minimize(objective, p0, method = method, bounds = minimize_bounds, **minimize_kwargs)
 
     popt = res.x
 
@@ -238,6 +315,11 @@ y_noise = 0.1 * np.random.normal(size=xdata.size)
 
 ydata = y + y_noise
 
+#ydata[10] +=1.5
+ydata[30] +=3
+ydata[40] +=1.5 
+ydata[48] +=3
+
 prediction_array = np.empty_like(xdata)
 grad_array = np.empty((xdata.size, 3))
 
@@ -259,11 +341,24 @@ p0 = np.array([1., 1., 1.])
 t0 = time()
 #for i in range(100):
 
-testbounds = ([1., 0.9, 1.], [1.9, 1., 3])
-params, pcov = curve_fit(func_fast, xdata, ydata, p0, method='slsqp', jac=jac_fast, bounds = testbounds, loss = 'squared')
+testbounds = ([1., 0, 1.], [1.9, 3., 3])
+params_cauchy_tuned, pcov_cauchy_tuned = curve_fit(func, xdata, ydata, p0, method='mma', jac=jac_func, bounds = None, loss = 'cauchy', f_scale = 0.2)
+params_cauchy, pcov_cauchy = curve_fit(func, xdata, ydata, p0, method='mma', jac=jac_func, bounds = None, loss = 'cauchy')
+params_absolute, pcov_absolute = curve_fit(func, xdata, ydata, p0, method='mma', jac=jac_func, bounds = None, loss = 'absolute')
+params_squared, pcov_squared = curve_fit(func, xdata, ydata, p0, method='mma', jac=jac_func, bounds = None, loss = 'linear')
 print(time() - t0)
-print(params)
-print(pcov)
+#print(params)
+#print(pcov)
+
+import matplotlib.pyplot as plt
+plt.scatter(xdata, ydata, c='k', s = 5)
+plt.plot(xdata, func(xdata, *params_cauchy), c='r', lw = 2, label = 'Cauchy loss: f_scale = 1')
+plt.plot(xdata, func(xdata, *params_cauchy_tuned), c='c', lw = 2, ls='--', label = 'Cauchy loss: f_scale = 0.2')
+plt.plot(xdata, func(xdata, *params_squared), c='b', lw = 2, label = 'Squared error loss')
+plt.plot(xdata, func(xdata, *params_absolute), c='y', lw = 2, ls=':', label = 'Absolute error loss')
+plt.plot(xdata, func(xdata, 2, 0.8, 2), c='k', lw = 2, ls=':', label = 'True')
+plt.legend()
+plt.show()
 
 t0 = time()
 #for i in range(100):
