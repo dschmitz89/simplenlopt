@@ -19,7 +19,7 @@ def is_gradient_based_global(method):
         return is_gradient_based(method)
 
 def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None, 
-        loss = 'linear', method = 'auto', jac = None, f_scale = 1, **minimize_kwargs):
+        loss = 'squared', method = 'auto', jac = None, f_scale = 1, **minimize_kwargs):
     '''
     Curve fitting using NLopt's local optimizers in SciPy style
 
@@ -40,7 +40,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
     loss : string, optional, default 'linear'
         Should be one of
 
-            - 'linear': minimizes ``sum(residual**2)``
+            - 'squared': minimizes ``sum(residual**2)``
             - 'absolute': minimizes ``sum(abs(residual))``
             - 'cauchy': minimizes ``sum(f_scale**2 * ln(1 + residual**2/f_scale**2))``
 
@@ -103,6 +103,9 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
         if bounds == None:
             raise ValueError("method={} requires bounds.".format(method))
 
+    if loss not in ['squared', 'absolute', 'cauchy']:
+        raise ValueError("loss must be one of 'squared', 'absolute', 'cauchy'.")
+        
     #convert xdata and ydata to float and make sure that no NaNs are present
     xdata = np.asarray_chkfinite(xdata, float)
     ydata = np.asarray_chkfinite(ydata, float)
@@ -132,7 +135,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
 
     if callable(jac) and is_gradient_based_global(method):
 
-        if loss == 'linear':
+        if loss == 'squared':
 
             def objective(p):
 
@@ -205,7 +208,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, bounds = None,
 
                 return obj
 
-        if loss == 'linear':
+        if loss == 'squared':
             
             def objective(p):
 
