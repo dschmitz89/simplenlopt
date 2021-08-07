@@ -19,9 +19,7 @@ Installation
 
 .. code:: bash
 
-   git clone https://github.com/dschmitz89/simplenlopt
-   cd simplenlopt
-   pip install .
+   pip install simplenlopt
 
 Example: Minimizing the Rosenbrock function in simplenlopt and scipy
 -----
