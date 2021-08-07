@@ -1,6 +1,3 @@
-# simplenlopt
-At the moment in beta version! 
-
 [![Documentation Status](https://readthedocs.org/projects/simplenlopt/badge/?version=latest)](https://simplenlopt.readthedocs.io/en/latest/?badge=latest)
 
 ## Overview
@@ -17,9 +14,7 @@ Refer to the online [documentation](https://simplenlopt.readthedocs.io/en/latest
 
 ## Installation
 ```bash
-git clone https://github.com/dschmitz89/simplenlopt
-cd simplenlopt
-pip install .
+pip install simplenlopt
 ```
 
 ## Example: Minimizing the Rosenbrock function in simplenlopt and scipy
