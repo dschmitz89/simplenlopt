@@ -12,7 +12,7 @@ if __name__ == '__main__':
         version='1.1', 
         description='A scipy.optimize like API for nlopt',
         url='https://github.com/dschmitz89/simplenlopt/',
-        download_url='https://github.com/dschmitz89/simplenlopt/archive/refs/tags/1.0.tar.gz',
+        #download_url='https://github.com/dschmitz89/simplenlopt/archive/refs/tags/1.0.tar.gz',
         author='Daniel Schmitz',
         license='Apache 2',
         long_description=long_description,
