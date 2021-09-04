@@ -21,6 +21,6 @@ if __name__ == '__main__':
         install_requires=[
             'numpy',
             'scipy>=1.2',
-            'nlopt=2.7'
+            'nlopt>=2.7',
         ]            
     )
