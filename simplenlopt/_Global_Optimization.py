@@ -15,7 +15,7 @@ def random_initial_point(lower, upper):
 def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True, 
     population=4, local_minimizer='auto', ftol_rel=1e-8,
     xtol_rel=1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, 
-    maxeval='auto', maxtime = None, local_minimizer_options={}):
+    maxeval='auto', maxtime = None, local_minimizer_options={}, solver_options={}):
     '''
     Global optimization via MultiLevel Single Linkage (MLSL)
 
@@ -87,6 +87,8 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
         maximum absolute time until the optimization is terminated
     local_mimimizer_options : dict
         Further options supplied to the local minimizer
+    solver_options : dict
+        Further options supplied to the global MLSL minimizer
 
     Returns
     -------
@@ -187,6 +189,16 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
     if x0 == 'random':
         x0 = random_initial_point(lower, upper)
 
+    #set additional mlsl optimizer options
+    for option, val in solver_options.items():
+        try:
+            set_option = getattr(mlsl_optimizer, 'set_{option}'.format(option=option))
+        except AttributeError:
+            raise ValueError('Parameter {option} could not be '
+                             'recognized.'.format(option=option))
+        else:
+            set_option(val)
+
     result = execute_optimization(mlsl_optimizer, x0, path)
 
     return result
@@ -272,7 +284,7 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
         dim = len(x0)
         maxeval = 1000 * dim
 
-    res = minimize(fun, x0, method=method, jac = jac, bounds=bounds,
+    res = minimize(fun, x0, args = args, method=method, jac = jac, bounds=bounds,
              ftol_rel = ftol_rel, xtol_rel = xtol_rel, 
              ftol_abs = ftol_abs, xtol_abs = xtol_abs, maxeval=maxeval, 
             maxtime=maxtime, solver_options=solver_options)
@@ -351,7 +363,7 @@ def isres(fun, bounds, args=(), constraints = [], x0='random', population=None,
     if population:
         solver_options['population'] = population
 
-    res = minimize(fun, x0, method='isres', jac = None, bounds=bounds,
+    res = minimize(fun, x0, args = args, method='isres', jac = None, bounds=bounds,
              constraints = constraints, ftol_rel = ftol_rel, xtol_rel = xtol_rel, 
              ftol_abs = ftol_abs, xtol_abs = xtol_abs, maxeval=maxeval, 
             maxtime=maxtime, solver_options=solver_options)
@@ -425,7 +437,7 @@ def esch(fun, bounds, args=(), x0='random', population=None,
     if population:
         solver_options['population'] = population
 
-    res = minimize(fun, x0, method='esch', jac = None, bounds=bounds,
+    res = minimize(fun, x0, args = args, method='esch', jac = None, bounds=bounds,
              ftol_rel = ftol_rel, xtol_rel = xtol_rel, 
              ftol_abs = ftol_abs, xtol_abs = xtol_abs, maxeval=maxeval, 
             maxtime=maxtime, solver_options=solver_options)
@@ -496,7 +508,7 @@ def crs(fun, bounds, args=(), x0='random', population = None,
     if population:
         solver_options['population'] = population
 
-    res = minimize(fun, x0, method='crs2_lm', jac = None, bounds=bounds,
+    res = minimize(fun, x0, args 0 args, method='crs2_lm', jac = None, bounds=bounds,
              ftol_rel = ftol_rel, xtol_rel = xtol_rel, 
              ftol_abs = ftol_abs, xtol_abs = xtol_abs, maxeval=maxeval, 
             maxtime=maxtime, solver_options=solver_options)
