@@ -508,7 +508,7 @@ def crs(fun, bounds, args=(), x0='random', population = None,
     if population:
         solver_options['population'] = population
 
-    res = minimize(fun, x0, args 0 args, method='crs2_lm', jac = None, bounds=bounds,
+    res = minimize(fun, x0, args = args, method='crs2_lm', jac = None, bounds=bounds,
              ftol_rel = ftol_rel, xtol_rel = xtol_rel, 
              ftol_abs = ftol_abs, xtol_abs = xtol_abs, maxeval=maxeval, 
             maxtime=maxtime, solver_options=solver_options)
