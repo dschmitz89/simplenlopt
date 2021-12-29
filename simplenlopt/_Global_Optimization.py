@@ -170,10 +170,7 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
 
     #set maximal number of function evaluations
     if maxeval == 'auto':
-        if gradient_required:
-            maxeval=1000 * dim
-        else:
-            maxeval=10000 * dim
+        maxeval=10000 * dim
 
     mlsl_optimizer.set_maxeval(maxeval)
     
@@ -282,7 +279,7 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
 
     if maxeval == 'auto':
         dim = len(x0)
-        maxeval = 1000 * dim
+        maxeval = 10000 * dim
 
     res = minimize(fun, x0, args = args, method=method, jac = jac, bounds=bounds,
              ftol_rel = ftol_rel, xtol_rel = xtol_rel, 
@@ -446,7 +443,7 @@ def esch(fun, bounds, args=(), x0='random', population=None,
 
 def crs(fun, bounds, args=(), x0='random', population = None, 
     ftol_rel = 1e-8, xtol_rel = 1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, 
-    maxeval=None, maxtime = None, solver_options={}):
+    maxeval='auto', maxtime = None, solver_options={}):
     '''
     Global optimization via Controlled Random Search with local mutation
 
@@ -507,6 +504,9 @@ def crs(fun, bounds, args=(), x0='random', population = None,
 
     if population:
         solver_options['population'] = population
+
+    if maxeval == 'auto':
+        maxeval = 10000 * len(x0)
 
     res = minimize(fun, x0, args = args, method='crs2_lm', jac = None, bounds=bounds,
              ftol_rel = ftol_rel, xtol_rel = xtol_rel, 

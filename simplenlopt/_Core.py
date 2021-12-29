@@ -424,7 +424,7 @@ def is_global(method_name):
 
 def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
              constraints=[], ftol_rel = 1e-8, xtol_rel = 1e-6, 
-             ftol_abs = 1e-14, xtol_abs = 1e-8, maxeval=None, 
+             ftol_abs = 1e-14, xtol_abs = 1e-8, maxeval='auto', 
             maxtime=None, solver_options={}):
     """
     Local minimization function for NLopt's algorithm in SciPy style
@@ -634,8 +634,12 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
     opt.set_xtol_abs(xtol_abs)
     opt.set_ftol_abs(ftol_abs)
 
-    if maxeval:
-        opt.set_maxeval(maxeval)
+    if maxeval == 'auto':
+        if gradient_required:
+            maxeval = 1000 * len(x0)
+        else:
+            maxeval = 5000 * len(x0)
+    opt.set_maxeval(maxeval)
 
     if maxtime:
         opt.set_maxtime(maxtime)
@@ -657,7 +661,7 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
 
 def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None, 
     constraints = (), penalize_inequalities = True, ftol_rel = 1e-8, 
-    xtol_rel = 1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, maxeval=None, 
+    xtol_rel = 1e-6, ftol_abs = 1e-14, xtol_abs = 1e-8, maxeval='auto', 
     maxtime=None, solver_options={}):
     """
     Constrained local minimization via the augmented lagrangian method
@@ -792,12 +796,18 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
     #set up local optimizer
     local_optimizer = setup_optimizer(method, dim)
 
+    if maxeval == 'auto':
+        if gradient_required:
+            maxeval = 1000 * len(x0)
+        else:
+            maxeval = 5000 * len(x0)
+
     #set tolerances
     local_optimizer.set_xtol_rel(xtol_rel)
     local_optimizer.set_ftol_rel(ftol_rel)
     local_optimizer.set_xtol_abs(xtol_abs)
     local_optimizer.set_ftol_rel(ftol_abs)
-
+    
     #set additional local optimizer options
     for option, val in solver_options.items():
         try:
@@ -825,13 +835,13 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
     set_constraints(constraints, auglag_optimizer)
 
     #set maximal number of function evaluations
-    if maxeval:
-        auglag_optimizer.set_maxeval(maxeval)
+    local_optimizer.set_maxeval(maxeval)
+    auglag_optimizer.set_maxeval(maxeval)
 
     #if given, set maxtime
     if maxtime:
+        local_optimizer.set_maxtime(maxtime)
         auglag_optimizer.set_maxtime(maxtime)
-
     result = execute_optimization(auglag_optimizer, x0, path)
 
     return result
