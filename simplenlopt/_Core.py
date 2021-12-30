@@ -200,6 +200,25 @@ def set_constraints(constraints, optimizer):
         else:
             raise ValueError('Constraint type not recognized')
 
+def set_auto_maxeval(optimizer, jac_required, jac, target):
+
+    if not jac_required:
+        optimizer.set_maxeval(target)
+        factor = 1
+    elif jac_required and (callable(jac) or jac == True):
+        optimizer.set_maxeval(target)
+        factor = 1
+    elif jac_required and jac == '2-point':
+        factor = 2
+        optimizer.set_maxeval(int(target/factor))
+    elif jac_required and (jac == None or jac == '3-point'):
+        factor = 3
+        optimizer.set_maxeval(int(target/factor))
+
+    return factor
+    
+
+
 def generate_nlopt_objective(fun, jac_required = None, jac = None, args=(), bounds = None, path = None):
 
     assert (callable(fun)), "fun must be a callable!"
@@ -354,7 +373,7 @@ def get_nlopt_message(ret_code):
     """
     return NLOPT_MESSAGES.get(ret_code)
 
-def execute_optimization(optimizer, x0, path):
+def execute_optimization(optimizer, x0, path, factor = None):
 
     try:
         x = optimizer.optimize(x0)
@@ -363,10 +382,14 @@ def execute_optimization(optimizer, x0, path):
         # If we encounter a RoundoffLimited exception, simply return last point
         x = path[-1]
 
+    nfev = optimizer.get_numevals()
+    if factor:
+        nfev = nfev * factor
+
     return OptimizeResult(
         x=x,
         fun=optimizer.last_optimum_value(),
-        nfev=optimizer.get_numevals(),
+        nfev=nfev,
         message=get_nlopt_message(optimizer.last_optimize_result()),
         success=(optimizer.last_optimize_result() > 0),
     )
@@ -639,7 +662,11 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
             maxeval = 1000 * len(x0)
         else:
             maxeval = 5000 * len(x0)
-    opt.set_maxeval(maxeval)
+
+    factor = set_auto_maxeval(opt, gradient_required, jac, maxeval)
+    #else:
+    #    opt.set_maxeval(maxeval)
+    #    factor = 1
 
     if maxtime:
         opt.set_maxtime(maxtime)
@@ -655,7 +682,7 @@ def minimize(fun, x0, args=(), method='auto', jac=None, bounds=None,
             set_option(val)
 
     # Perform the optimization
-    res = execute_optimization(opt, x0, path)
+    res = execute_optimization(opt, x0, path, factor)
 
     return res
 
@@ -835,13 +862,12 @@ def auglag(fun, x0, args=(), method='auto', jac=None, bounds = None,
     set_constraints(constraints, auglag_optimizer)
 
     #set maximal number of function evaluations
-    local_optimizer.set_maxeval(maxeval)
-    auglag_optimizer.set_maxeval(maxeval)
+    factor = set_auto_maxeval(auglag_optimizer, gradient_required, jac, maxeval)
 
     #if given, set maxtime
     if maxtime:
         local_optimizer.set_maxtime(maxtime)
         auglag_optimizer.set_maxtime(maxtime)
-    result = execute_optimization(auglag_optimizer, x0, path)
+    result = execute_optimization(auglag_optimizer, x0, path, factor)
 
     return result

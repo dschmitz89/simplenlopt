@@ -1,4 +1,4 @@
-from simplenlopt._Core import minimize, is_gradient_based, generate_nlopt_objective, setup_optimizer, normalize_bounds, execute_optimization
+from simplenlopt._Core import set_auto_maxeval, minimize, is_gradient_based, generate_nlopt_objective, setup_optimizer, normalize_bounds, execute_optimization
 import numpy as np
 
 def random_initial_point(lower, upper):
@@ -170,10 +170,16 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
 
     #set maximal number of function evaluations
     if maxeval == 'auto':
-        maxeval=10000 * dim
-
-    mlsl_optimizer.set_maxeval(maxeval)
+        if jac:
+            maxeval=2000 * dim
+        else:
+            maxeval=10000 * dim
     
+    factor = set_auto_maxeval(mlsl_optimizer, gradient_required, jac, maxeval)            
+    #else:
+    #    mlsl_optimizer.set_maxeval(maxeval)
+    #    factor = 1
+
     #set population
     mlsl_optimizer.set_population(population)
 
@@ -196,7 +202,7 @@ def mlsl(fun, bounds, args=(), jac=None, x0='random', sobol_sampling = True,
         else:
             set_option(val)
 
-    result = execute_optimization(mlsl_optimizer, x0, path)
+    result = execute_optimization(mlsl_optimizer, x0, path, factor)
 
     return result
 
@@ -279,7 +285,10 @@ def stogo(fun, bounds, args=(), jac=None, x0='random', randomize = False,
 
     if maxeval == 'auto':
         dim = len(x0)
-        maxeval = 10000 * dim
+        if jac:
+            maxeval=2000 * dim
+        else:
+            maxeval=10000 * dim
 
     res = minimize(fun, x0, args = args, method=method, jac = jac, bounds=bounds,
              ftol_rel = ftol_rel, xtol_rel = xtol_rel, 
